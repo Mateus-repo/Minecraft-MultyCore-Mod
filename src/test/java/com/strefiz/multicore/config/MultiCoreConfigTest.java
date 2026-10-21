@@ -90,4 +90,34 @@ class MultiCoreConfigTest {
 
 		assertFalse(config.modWhitelist().contains("mutated"));
 	}
+
+	@Test
+	void withWorkerThreadsClampsAndReturnsACopy() {
+		MultiCoreConfig config = new MultiCoreConfig();
+
+		MultiCoreConfig raised = config.withWorkerThreads(config.workerThreads() + 1);
+		MultiCoreConfig tooMany = config.withWorkerThreads(9999);
+
+		assertEquals(2, raised.workerThreads());
+		assertEquals(MultiCoreConfig.MAX_WORKER_THREADS, tooMany.workerThreads());
+		assertEquals(1, config.workerThreads(), "the original must not change");
+	}
+
+	@Test
+	void withModeAndDebugReturnCopies() {
+		MultiCoreConfig config = new MultiCoreConfig();
+
+		MultiCoreConfig aggressive = config.withMode(ConfigMode.AGGRESSIVE);
+		MultiCoreConfig debugging = config.withDebug(true);
+
+		assertEquals(ConfigMode.AGGRESSIVE, aggressive.mode());
+		assertTrue(debugging.debug());
+		assertEquals(ConfigMode.SAFE, config.mode());
+		assertFalse(config.debug());
+	}
+
+	@Test
+	void withModeToleratesNull() {
+		assertEquals(ConfigMode.SAFE, new MultiCoreConfig().withMode(null).mode());
+	}
 }

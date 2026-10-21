@@ -6,10 +6,13 @@
   "description": "Runs the safe parts of the Minecraft server tick on multiple worker threads while keeping legacy mods on the main thread.",
   "authors": ["Strefiz"],
   "license": "MIT",
-  "environment": "server",
+  "environment": "*",
   "entrypoints": {
     "server": [
       "com.strefiz.multicore.MultiCoreMod"
+    ],
+    "modmenu": [
+      "com.strefiz.multicore.compat.ModMenuIntegration"
     ]
   },
   "mixins": [
@@ -20,5 +23,8 @@
     "minecraft": "~26.3",
     "java": ">=25",
     "fabric-api": "*"
+  },
+  "suggests": {
+    "modmenu": "*"
   }
 }

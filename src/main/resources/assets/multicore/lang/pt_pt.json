@@ -1,0 +1,12 @@
+{
+  "config.multicore.title": "MultiCore",
+  "config.multicore.workers": "Threads de trabalho: %s",
+  "config.multicore.mode": "Modo",
+  "config.multicore.mode.safe": "SEGURO",
+  "config.multicore.mode.aggressive": "AGRESSIVO",
+  "config.multicore.debug": "Depuração",
+  "config.multicore.on": "LIGADO",
+  "config.multicore.off": "DESLIGADO",
+  "config.multicore.restartRequired": "Reinício necessário: threads de trabalho, modo e definições de região só se aplicam depois de reiniciar o jogo/servidor.",
+  "config.multicore.done": "Concluído"
+}

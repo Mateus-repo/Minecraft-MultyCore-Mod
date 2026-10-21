@@ -80,6 +80,42 @@ public class MultiCoreConfig {
 	}
 
 	/**
+	 * Returns a copy with a validated worker-thread count.
+	 *
+	 * @param value the desired count (clamped to the allowed range)
+	 * @return a new configuration
+	 */
+	public MultiCoreConfig withWorkerThreads(int value) {
+		MultiCoreConfig copy = normalized();
+		copy.workerThreads = clamp(value, MIN_WORKER_THREADS, MAX_WORKER_THREADS);
+		return copy;
+	}
+
+	/**
+	 * Returns a copy with the given execution mode.
+	 *
+	 * @param value the new mode (never {@code null})
+	 * @return a new configuration
+	 */
+	public MultiCoreConfig withMode(ConfigMode value) {
+		MultiCoreConfig copy = normalized();
+		copy.mode = (value == null ? ConfigMode.SAFE : value).name();
+		return copy;
+	}
+
+	/**
+	 * Returns a copy with the given debug flag.
+	 *
+	 * @param value whether instrumentation is enabled
+	 * @return a new configuration
+	 */
+	public MultiCoreConfig withDebug(boolean value) {
+		MultiCoreConfig copy = normalized();
+		copy.debug = value;
+		return copy;
+	}
+
+	/**
 	 * Returns a defensive copy with validated values: the worker count is clamped to
 	 * {@value #MIN_WORKER_THREADS}..{@value #MAX_WORKER_THREADS}, the mode is never {@code null} and
 	 * the lists are never {@code null}.

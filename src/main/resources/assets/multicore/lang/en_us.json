@@ -1,0 +1,12 @@
+{
+  "config.multicore.title": "MultiCore",
+  "config.multicore.workers": "Worker threads: %s",
+  "config.multicore.mode": "Mode",
+  "config.multicore.mode.safe": "SAFE",
+  "config.multicore.mode.aggressive": "AGGRESSIVE",
+  "config.multicore.debug": "Debug",
+  "config.multicore.on": "ON",
+  "config.multicore.off": "OFF",
+  "config.multicore.restartRequired": "Restart required: worker threads, mode and region settings only apply after restarting the game/server.",
+  "config.multicore.done": "Done"
+}

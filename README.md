@@ -38,7 +38,7 @@ breaking the mods that were not written for multithreading.
 | Fabric Loader | **>= 0.19.5** |
 | Fabric API | **0.160.5+26.3** (or compatible) |
 | Java | **25** |
-| Environment | Dedicated **server** (Linux / Windows). Also loaded on the server side of an integrated server. |
+| Environment | The mod ships as `environment: "*"` so **Mod Menu** can show the config screen; all the parallel work is **server-side** (dedicated server or the server side of an integrated server), Linux / Windows. |
 | Optional | [Mod Menu](https://modrinth.com/mod/modmenu) for the in-game config screen |
 
 ## Install
