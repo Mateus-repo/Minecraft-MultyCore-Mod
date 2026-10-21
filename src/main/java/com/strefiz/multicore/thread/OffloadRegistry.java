@@ -85,7 +85,7 @@ public final class OffloadRegistry {
 		}
 
 		private void submit() {
-			scheduler.submitOffload(work, merge);
+			scheduler.submitOffload(work, merge, DeadlinePolicy.forSafety(safety));
 		}
 	}
 }

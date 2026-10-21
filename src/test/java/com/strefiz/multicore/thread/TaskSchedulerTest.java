@@ -83,6 +83,68 @@ class TaskSchedulerTest {
 	}
 
 	@Test
+	void singleDeadlineIsNotDividedPerTask() throws InterruptedException {
+		MainThread.capture();
+		WorkerPool pool = new WorkerPool("test", 4);
+		pool.start();
+		TaskScheduler scheduler = new TaskScheduler(pool);
+		AtomicInteger applied = new AtomicInteger();
+		CountDownLatch allDone = new CountDownLatch(100);
+
+		for (int i = 0; i < 100; i++) {
+			final int index = i;
+			scheduler.submitOffload(() -> {
+				if (index == 42) {
+					Thread.sleep(150); // far below the 2 s budget, but above a per-task split
+				}
+				allDone.countDown();
+				return index;
+			}, value -> applied.incrementAndGet());
+		}
+
+		assertTrue(allDone.await(5, TimeUnit.SECONDS));
+		assertEquals(100, scheduler.drainToMain(), "one slow task must not starve the other 99");
+		assertEquals(100, applied.get());
+		pool.shutdown();
+	}
+
+	@Test
+	void waitPolicyNeverDropsWork() throws InterruptedException {
+		MainThread.capture();
+		WorkerPool pool = new WorkerPool("test", 1);
+		pool.start();
+		TaskScheduler scheduler = new TaskScheduler(pool);
+		AtomicBoolean merged = new AtomicBoolean(false);
+
+		scheduler.submitOffload(() -> {
+			Thread.sleep(150);
+			return "world";
+		}, value -> merged.set(true), DeadlinePolicy.WAIT);
+
+		assertEquals(1, scheduler.drainToMain(50), "a WAIT task must block until it finishes");
+		assertTrue(merged.get());
+		pool.shutdown();
+	}
+
+	@Test
+	void skipPolicyDropsMetricsWorkOnTimeout() throws InterruptedException {
+		MainThread.capture();
+		WorkerPool pool = new WorkerPool("test", 1);
+		pool.start();
+		TaskScheduler scheduler = new TaskScheduler(pool);
+		AtomicBoolean merged = new AtomicBoolean(false);
+
+		scheduler.submitOffload(() -> {
+			Thread.sleep(150);
+			return "metric";
+		}, value -> merged.set(true), DeadlinePolicy.SKIP);
+
+		assertEquals(0, scheduler.drainToMain(50), "a SKIP task is dropped when it misses the deadline");
+		assertFalse(merged.get());
+		pool.shutdown();
+	}
+
+	@Test
 	void runsInlineWhenPoolIsDisabled() {
 		MainThread.capture();
 		TaskScheduler scheduler = new TaskScheduler(new WorkerPool("test", 0));

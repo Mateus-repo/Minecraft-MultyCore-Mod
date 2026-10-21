@@ -67,13 +67,26 @@ public final class TaskScheduler {
 	 * @param <T> the result type
 	 */
 	public <T> void submitOffload(Callable<T> work, Consumer<T> merge) {
+		submitOffload(work, merge, DeadlinePolicy.SKIP);
+	}
+
+	/**
+	 * As {@link #submitOffload(Callable, Consumer)}, with an explicit deadline policy.
+	 *
+	 * @param work the CPU work, run on a worker thread (or inline when the pool is disabled)
+	 * @param merge the merge action, run on the main thread by {@link #drainToMain()}
+	 * @param policy what to do when the work exceeds the deadline
+	 * @param <T> the result type
+	 */
+	public <T> void submitOffload(Callable<T> work, Consumer<T> merge, DeadlinePolicy policy) {
 		Objects.requireNonNull(work, "work");
 		Objects.requireNonNull(merge, "merge");
+		Objects.requireNonNull(policy, "policy");
 		if (!pool.isRunning()) {
 			runInline(work, merge);
 			return;
 		}
-		OffloadTask<T> task = new OffloadTask<>(sequence.incrementAndGet(), work, merge);
+		OffloadTask<T> task = new OffloadTask<>(sequence.incrementAndGet(), work, merge, policy);
 		inFlight.add(task);
 		if (!pool.submit(task)) {
 			inFlight.remove(task);
@@ -127,11 +140,16 @@ public final class TaskScheduler {
 		return applied;
 	}
 
+	/**
+	 * Waits for every task against a <em>single</em> deadline, so one slow task cannot eat the whole
+	 * budget while the others are starved.
+	 */
 	private void awaitAll(List<OffloadTask<?>> tasks, long timeoutMillis) {
-		long perTask = Math.max(1, timeoutMillis / tasks.size());
+		long deadline = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(Math.max(1, timeoutMillis));
 		for (OffloadTask<?> task : tasks) {
+			long remainingNanos = Math.max(0L, deadline - System.nanoTime());
 			try {
-				task.await(perTask);
+				task.await(remainingNanos);
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
 				break;
@@ -150,17 +168,22 @@ public final class TaskScheduler {
 	/** One offload: compute on a worker, merge on the main thread. */
 	private final class OffloadTask<T> implements Runnable {
 
+		/** Upper bound when a {@code WAIT} task must be waited for even past the tick deadline. */
+		private static final long HARD_WAIT_MILLIS = 60_000L;
+
 		private final long sequence;
 		private final Callable<T> work;
 		private final Consumer<T> merge;
+		private final DeadlinePolicy policy;
 		private final CountDownLatch done = new CountDownLatch(1);
 		private volatile T result;
 		private volatile Throwable error;
 
-		private OffloadTask(long sequence, Callable<T> work, Consumer<T> merge) {
+		private OffloadTask(long sequence, Callable<T> work, Consumer<T> merge, DeadlinePolicy policy) {
 			this.sequence = sequence;
 			this.work = work;
 			this.merge = merge;
+			this.policy = policy;
 		}
 
 		@Override
@@ -174,12 +197,16 @@ public final class TaskScheduler {
 			}
 		}
 
-		private void await(long timeoutMillis) throws InterruptedException {
-			done.await(timeoutMillis, TimeUnit.MILLISECONDS);
+		private void await(long timeoutNanos) throws InterruptedException {
+			done.await(timeoutNanos, TimeUnit.NANOSECONDS);
 		}
 
 		/**
 		 * Applies the merge on the main thread.
+		 *
+		 * <p>If the task exceeded the tick deadline, the {@link DeadlinePolicy} decides:
+		 * {@code SKIP} drops it (fine for metrics), {@code WAIT} blocks until it finishes — dropping
+		 * world-modifying work would corrupt the game.
 		 *
 		 * @return {@code true} when the merge was applied
 		 */
@@ -188,8 +215,11 @@ public final class TaskScheduler {
 				LOGGER.error("Offloaded task #{} failed; its result will not be merged.", sequence, error);
 				return false;
 			}
+			if (done.getCount() != 0 && policy == DeadlinePolicy.WAIT) {
+				waitHard();
+			}
 			if (done.getCount() != 0) {
-				LOGGER.warn("Offloaded task #{} did not finish in time; its merge was skipped.", sequence);
+				LOGGER.error("Offloaded task #{} did not finish in time; its merge was skipped.", sequence);
 				return false;
 			}
 			try {
@@ -198,6 +228,15 @@ public final class TaskScheduler {
 			} catch (RuntimeException e) {
 				LOGGER.error("Merge action #{} failed; continuing.", sequence, e);
 				return false;
+			}
+		}
+
+		private void waitHard() {
+			LOGGER.warn("Offloaded task #{} exceeded the tick deadline; waiting for it to finish.", sequence);
+			try {
+				done.await(HARD_WAIT_MILLIS, TimeUnit.MILLISECONDS);
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
 			}
 		}
 	}
