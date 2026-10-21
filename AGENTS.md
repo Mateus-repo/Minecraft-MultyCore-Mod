@@ -14,11 +14,11 @@
 
 | Action | Command |
 |--------|---------|
-| Install dependencies | `TODO` |
-| Run | `TODO` |
-| Build | `TODO` |
-| Tests | `TODO` |
-| Lint / format | `TODO` |
+| Install dependencies | `./gradlew build` (first run downloads Loom, Minecraft and Fabric API) |
+| Run (dev server) | `./gradlew runServer` |
+| Build | `./gradlew build` |
+| Tests | `./gradlew test` |
+| Lint / format | _none configured yet_ |
 | Full verification | `bash scripts/check.sh` |
 
 ## 2. Startup ritual (mandatory, in this order)

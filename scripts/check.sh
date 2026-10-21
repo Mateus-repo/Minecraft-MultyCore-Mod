@@ -60,6 +60,12 @@ if [[ -f project.godot ]]; then
   if has godot; then step "godot (load project)" godot --headless --quit --path .; else echo "ℹ Godot: 'godot' binary not found on PATH — manual verification needed."; fi
 fi
 
+# Java / Gradle (Fabric, Forge, NeoForge, plain JVM)
+if [[ -x gradlew || -f gradlew ]] && { [[ -f build.gradle || -f build.gradle.kts ]]; }; then
+  step "gradle test" ./gradlew test --console=plain --no-daemon
+  step "gradle build" ./gradlew build --console=plain --no-daemon
+fi
+
 # Structure, documentation and modularity (warnings only; see scripts/structure-check.sh)
 [[ -x scripts/structure-check.sh || -f scripts/structure-check.sh ]] && bash scripts/structure-check.sh || true
 echo

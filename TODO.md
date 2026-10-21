@@ -7,8 +7,6 @@
 
 ## Now
 
-- [ ] T-001 [P1] [M] Scaffold the Gradle/Fabric 26.3 project — acceptance: `build.gradle`, `settings.gradle`, `gradle.properties`, committed wrapper (9.8.0), `src/main/resources/fabric.mod.json` (server entrypoint + mixins + `suggests.modmenu`), `multicore.mixins.json`; `./gradlew build` produces `build/libs/multicore-*.jar`  (ref: ROADMAP M0)
-- [ ] T-002 [P1] [M] Fill the management docs for the real stack — acceptance: `AGENTS.md` commands real, `ARCHITECTURE.md` describes modules, `docs/CONVENTIONS.md`/`MODULES.md`/`TESTING.md`/`GLOSSARY.md`/`DESIGN.md` have no placeholders, `scripts/check.sh` green  (ref: ROADMAP M0)
 - [ ] T-003 [P1] [M] Phase 1.1 — config module — acceptance: JSON `config/multicore.json` with `workerThreads` (default 1), `mode` (SAFE/AGGRESSIVE), `modWhitelist`/`modBlacklist`, `debug`; load/save/round-trip + validation tested; applied at server start only  (ref: ROADMAP M1, D-006, D-008)
 - [ ] T-004 [P1] [M] Phase 1.2 — worker thread manager — acceptance: named fixed pool (never the common pool), start on `SERVER_STARTING`, drain+stop on `SERVER_STOPPED`, unit test proves tasks run off the main thread  (ref: ROADMAP M1)
 - [ ] T-005 [P1] [M] Phase 1.3 — offload/merge scheduler — acceptance: submit work to workers, results merged on the main thread before `END_SERVER_TICK`; no shared mutable world state touched off-thread; tests cover ordering  (ref: ROADMAP M1)
@@ -42,3 +40,5 @@
 
 - [x] T-000 [P1] [S] Apply the repository template — acceptance: template copied, placeholders replaced, first commit  (ref: ROADMAP M0)
 - [x] T-000b [P1] [M] Phase 0 research — acceptance: `docs/RESEARCH.md` written from web + local jar inspection; Mod Menu requirement recorded  (ref: ROADMAP M0)
+- [x] T-001 [P1] [M] Scaffold the Gradle/Fabric 26.3 project — acceptance: wrapper (9.8.0) committed, `./gradlew build` produces `build/libs/multicore-0.1.0.jar`  (ref: ROADMAP M0)
+- [x] T-002 [P1] [M] Fill the management docs for the real stack — acceptance: `AGENTS.md` commands real, `ARCHITECTURE.md` filled, `scripts/check.sh` green (10 checks)  (ref: ROADMAP M0)
