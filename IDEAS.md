@@ -14,6 +14,7 @@
 - (2026-10-21) [agent] Per-region CPU affinity (pin a region to a core) — M4/T-018, optional.
 - (2026-10-21) [agent] Web/Spark-style live dashboard of regions and threads — probably overkill; `/multicore status` first.
 - (2026-10-21) [agent] Deterministic mode (serialise ticks) for reproducible debugging — conflicts with the performance goal; defer.
+- (2026-10-21) [agent] Replace the `Safety` ordinal comparison in `OffloadRegistry` with an explicit policy (`EnumMap<Safety, Boolean>`) — clearer, and easier to extend in Phase 3.
 
 ## Under evaluation
 

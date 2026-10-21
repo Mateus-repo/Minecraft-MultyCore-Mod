@@ -9,14 +9,25 @@ Write for **humans**: what changed for people who use it, not internal details.
 - Phase 0 research: `docs/RESEARCH.md` (prior art, 26.3 tick anatomy, Java concurrency, Fabric surface, risks).
 - Roadmap M0–M5 and a concrete task queue (`TODO.md`).
 - Mod Menu integration requirement (optional dependency, restart warning) — D-007.
+- M1 infrastructure: JSON config, named worker pool, offload/merge scheduler, lock-free metrics,
+  `/multicore` command, Mod Menu config screen, offload registry with a safety contract.
+- `docs/BENCHMARKS.md` — the measurement plan and the go/no-go point before Phase 3 (D-012).
+- `REVIEW.md` — an independent review of the M1 code and of an external review (R-001).
 
 ### Changed
+- The entrypoint is now the common `main`/`ModInitializer`, so the mod also runs on an integrated
+  server (singleplayer/LAN) — D-013.
+- The README states clearly that SAFE mode protects Fabric-event mods but **not** mixin-based mods.
 
 ### Fixed
-
-### Removed
+- The scheduler now waits for offloaded work (barrier) and merges in submission order, not completion
+  order.
+- Worker tasks report exceptions again (they were captured in unread `Future`s).
+- Command output is locale-independent (`Locale.ROOT`).
 
 ### Security
+
+### Removed
 
 ## [0.0.0] - 2026-10-21
 
