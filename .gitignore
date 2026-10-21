@@ -23,6 +23,8 @@ Thumbs.db
 *.swp
 
 # Dependencies and common builds
+.gradle/
+run/
 node_modules/
 dist/
 build/

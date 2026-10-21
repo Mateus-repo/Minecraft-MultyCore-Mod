@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "id": "multicore",
+  "version": "${version}",
+  "name": "MultiCore",
+  "description": "Runs the safe parts of the Minecraft server tick on multiple worker threads while keeping legacy mods on the main thread.",
+  "authors": ["Strefiz"],
+  "license": "MIT",
+  "environment": "server",
+  "entrypoints": {
+    "server": [
+      "com.strefiz.multicore.MultiCoreMod"
+    ]
+  },
+  "mixins": [
+    "multicore.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.19.5",
+    "minecraft": "~26.3",
+    "java": ">=25",
+    "fabric-api": "*"
+  }
+}
