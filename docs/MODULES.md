@@ -8,7 +8,7 @@
 
 | Module | Path | Purpose (1 sentence) | Public API (summary) | Depends on |
 |--------|---------|---------------------|----------------------|------------|
-| _planned_ | `config/MultiCoreConfig` | parse/validate/persist the JSON config | `load()`, `get()`, `save()`, `workerThreads()`, `mode()` | — |
+| `config` | `config/` | parse/validate/persist the JSON config | `ConfigStore.load()/save()`, `MultiCoreConfig.normalized()`, `ConfigMode` | — |
 | _planned_ | `thread/WorkerPool` | named worker pool with lifecycle | `start(int)`, `submit(Runnable)`, `submit(Callable)`, `shutdown()` | `config` |
 | _planned_ | `thread/TaskScheduler` | offload work and merge results on the main thread | `submitOffload(...)`, `drainToMain()` | `thread` |
 | _planned_ | `metrics/TickMetrics` | MSPT + per-thread timing, lock-free | `startTick()`, `endTick()`, `mspt()`, `snapshot()` | `thread` |
@@ -27,7 +27,9 @@ Group by **concept**, not by file. _(Empty until the first module is implemented
 
 | Name | Path | Signature | What it does | Pure? | Errors | Used by |
 |------|---------|------------|-----------|-------|-------|-----------|
-| | | | | | | |
+| `ConfigStore` | `config/ConfigStore.java` | `ConfigStore(Path)` · `static defaultStore()` · `MultiCoreConfig load()` · `void save(MultiCoreConfig)` | JSON config load/save in `config/multicore.json`; defaults on any error | no (I/O) | never throws | `MultiCoreMod`, Mod Menu screen |
+| `MultiCoreConfig` | `config/MultiCoreConfig.java` | `workerThreads()`, `mode()`, `debug()`, `modWhitelist()`, `modBlacklist()`, `threadCount()`, `multithreaded()`, `normalized()` | Config data + validation | `normalized()` yes, rest no | — | `WorkerPool`, `ModCompatibility` |
+| `ConfigMode` | `config/ConfigMode.java` | `SAFE` \| `AGGRESSIVE` · `static fromString(String)` | Execution mode; unknown → `SAFE` | yes | — | `MultiCoreConfig` |
 
 ## Known duplications (to resolve)
 

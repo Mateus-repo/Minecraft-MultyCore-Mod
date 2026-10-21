@@ -27,6 +27,10 @@ dependencies {
 	// Mod Menu - only for development/compile, never a hard dependency.
 	compileOnly "com.terraformersmc:modmenu:21.0.0"
 	localRuntime "com.terraformersmc:modmenu:21.0.0"
+
+	// Unit tests
+	testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 processResources {
@@ -54,4 +58,8 @@ jar {
 	from("LICENSE") {
 		rename { "${it}_${project.base.archivesName.get()}"}
 	}
+}
+
+test {
+	useJUnitPlatform()
 }
