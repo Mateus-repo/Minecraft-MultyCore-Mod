@@ -42,7 +42,7 @@ flowchart TD
 
 ```
 src/main/java/com/strefiz/multicore/
-  MultiCoreMod.java              # DedicatedServerModInitializer entrypoint (wires everything)
+  MultiCoreMod.java              # ModInitializer entrypoint (wires everything; runs on dedicated + integrated)
   config/
     MultiCoreConfig.java         # JSON config: workerThreads, mode, lists, debug
     ConfigMode.java              # SAFE | AGGRESSIVE
@@ -93,11 +93,13 @@ Catalogue of reusable functions/components: `docs/MODULES.md`. Each module has i
 
 ## Main flows
 
-1. **Boot:** `onInitializeServer()` → `MultiCoreConfig.load()` → `WorkerPool.start(n)` → register
-   `/multicore` → register `ServerLifecycleEvents` and `ServerTickEvents`.
+1. **Boot:** `onInitialize()` → register `/multicore` and the server lifecycle/tick events. The
+   common `main` entrypoint is used so the mod also runs on an **integrated server** (singleplayer/
+   LAN); on a client without a server the events simply never fire.
 2. **Server start:** `SERVER_STARTING` → apply the config snapshot; `SERVER_STARTED` → begin metrics.
-3. **Tick (Phase 1):** `START_SERVER_TICK` → collect offload tasks → submit to workers →
-   `START_LEVEL_TICK` → vanilla tick → merge results → `END_SERVER_TICK`.
+3. **Tick (Phase 1):** `START_SERVER_TICK` → start measuring, submit the registered offloads →
+   `START_LEVEL_TICK` → vanilla tick → `END_SERVER_TICK` → `drainToMain()` (barrier + ordered
+   merges) → stop measuring.
 4. **Tick (Phase 3):** `tickChildren` mixin → regionizer assigns regions → scheduler runs regions on
    workers → barrier → legacy callbacks on the main thread → `END_SERVER_TICK`.
 5. **Shutdown:** `SERVER_STOPPING` → stop offloads → `SERVER_STOPPED` → `WorkerPool.stop()`.

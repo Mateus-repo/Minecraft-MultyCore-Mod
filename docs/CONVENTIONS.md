@@ -66,7 +66,7 @@
 - Commands: `./gradlew build` · `bash scripts/check.sh`.
 - Mixins: declare in `multicore.mixins.json`; keep them thin and put logic in modules.
 - Config: JSON via Gson in `config/multicore.json`.
-- Entrypoint: `"server"` → `DedicatedServerModInitializer` (server-side only for now).
+- Entrypoint: `"main"` → `ModInitializer` (runs on dedicated **and** integrated servers).
 
 ## Commands
 

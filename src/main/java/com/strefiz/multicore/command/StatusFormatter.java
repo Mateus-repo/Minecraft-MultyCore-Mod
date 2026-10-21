@@ -42,6 +42,11 @@ public final class StatusFormatter {
 				text.append(String.format(Locale.ROOT, "%n    %s: %.2f ms", entry.getKey(), entry.getValue()));
 			}
 		}
+
+		String rollup = source.metricsRollup();
+		if (rollup != null && !rollup.isBlank()) {
+			text.append("\n  rollup: ").append(rollup);
+		}
 		return text.toString();
 	}
 

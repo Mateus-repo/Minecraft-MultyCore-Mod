@@ -32,11 +32,14 @@ Group by **concept**, not by file. _(Empty until the first module is implemented
 | `ConfigMode` | `config/ConfigMode.java` | `SAFE` \| `AGGRESSIVE` · `static fromString(String)` | Execution mode; unknown → `SAFE` | yes | — | `MultiCoreConfig` |
 | `WorkerPool` | `thread/WorkerPool.java` | `WorkerPool(String,int)` · `start()` · `boolean submit(Runnable)` · `submitAll(...)` · `shutdown()` | Named worker pool with lifecycle | no | never throws | `MultiCoreMod`, `TaskScheduler` |
 | `MainThread` | `thread/MainThread.java` | `static capture()` · `static boolean isCurrent()` · `static Thread get()` | Identify the server main thread | yes | — | all modules |
-| `TaskScheduler` | `thread/TaskScheduler.java` | `TaskScheduler(WorkerPool)` · `submitOffload(Callable, Consumer)` · `submit(Runnable)` · `drainToMain()` | Offload work and merge results on the main thread | no | never throws | `MultiCoreMod`, `region` |
+| `TaskScheduler` | `thread/TaskScheduler.java` | `TaskScheduler(WorkerPool)` · `submitOffload(Callable, Consumer)` · `submit(Runnable)` · `drainToMain()` | Offload work, **wait for it**, then merge in submission order on the main thread | no | never throws | `MultiCoreMod`, `region` |
+| `OffloadRegistry` | `thread/OffloadRegistry.java` | `OffloadRegistry(TaskScheduler)` · `register(name, safety, work, merge)` · `submitAll(Safety)` | Named offloads filtered by safety level | no | never throws | `MultiCoreMod` |
+| `Safety` | `thread/Safety.java` | `PURE` \| `READ_ONLY` \| `WORLD_STATE` | Contract for how much of the world an offload may touch | yes | — | `OffloadRegistry` |
+| `MetricsRollup` | `metrics/MetricsRollup.java` | `MetricsRollup(TickMetrics)` · `String hottest(int)` | Pure "hottest labels" aggregation | yes | — | `MultiCoreMod` |
 | `TickMetrics` | `metrics/TickMetrics.java` | `startTick()` · `endTick()` · `beginWork/endWork` · `snapshot()` · `reset()` | Lock-free tick and per-thread timings | no | — | `command`, mixins |
 | `MultiCoreCommand` | `command/MultiCoreCommand.java` | `register(CommandDispatcher, StatusSource)` · `registerEvents(StatusSource)` | `/multicore` command tree | no | — | `MultiCoreMod` |
 | `StatusFormatter` | `command/StatusFormatter.java` | `status(StatusSource)` · `compat(String)` · `regions(String)` · `reloadWarning()` | Pure command text formatting | yes | — | `MultiCoreCommand` |
-| `StatusSource` | `command/StatusSource.java` | `mode()` · `workerThreads()` · `metrics()` · … | Read-only state for the command | yes | — | `MultiCoreCommand` |
+| `StatusSource` | `command/StatusSource.java` | `mode()` · `workerThreads()` · `metrics()` · `metricsRollup()` · … | Read-only state for the command | yes | — | `MultiCoreCommand` |
 | `ModMenuIntegration` | `compat/ModMenuIntegration.java` | `implements ModMenuApi` · `getModConfigScreenFactory()` | Expose the config screen to Mod Menu | no | — | Mod Menu |
 | `MultiCoreConfigScreen` | `compat/MultiCoreConfigScreen.java` | `extends Screen` | Native config screen; persists on change; restart warning | no | never throws | Mod Menu |
 

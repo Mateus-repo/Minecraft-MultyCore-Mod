@@ -7,8 +7,7 @@
 
 ## Now
 
-- [ ] T-008 [P1] [M] Wire the entrypoint — acceptance: `MultiCoreMod` implements `StatusSource`; `SERVER_STARTING` captures the main thread, loads config, starts the pool; `START/END_SERVER_TICK` measure and merge; `SERVER_STOPPED` shuts down; command registered; `./gradlew build` green  (ref: ROADMAP M1)
-- [ ] T-009 [P1] [S] First safe offload + benchmark — acceptance: an offload registry that forbids touching world state, one concrete offload, and a documented benchmark procedure (same seed, before/after MSPT); the offload is disabled if it changes RNG order  (ref: ROADMAP M1, D-010)
+_Empty — M1 code is done; next is Phase 2 (mod compatibility)._
 
 ## Next
 
@@ -16,6 +15,7 @@
 - [ ] T-011 [P2] [M] Phase 2.2 — legacy hand-off — acceptance: legacy Fabric callbacks run on the main thread in SAFE mode; a "naughty" legacy mod test does not corrupt state  (ref: ROADMAP M2)
 - [ ] T-012 [P2] [M] Phase 2.3 — `MultiCoreCompat` public API — acceptance: `runOnRegion`/`runOnMain`/`RegionLocal` documented, tested, listed in `docs/MODULES.md`  (ref: ROADMAP M2)
 - [ ] T-013 [P2] [S] Phase 2.4 — instrumentation — acceptance: debug thread-check logs off-thread world access; `/multicore compat dump` reports it  (ref: ROADMAP M2)
+- [ ] T-023 [P2] [M] Run the M1 benchmark and write the go/no-go report — acceptance: fill the table in `docs/BENCHMARKS.md` for players-together and players-spread scenarios (with/without the mod), include a Spark profile, and state go/no-go for Phase 3  (ref: D-012)
 - [ ] T-014 [P2] [L] Phase 3.1 — region model — acceptance: region sections, merge radius, four states, merge/split with deadline offsets; unit-tested in isolation  (ref: ROADMAP M3)
 - [ ] T-015 [P2] [L] Phase 3.2 — region scheduler + barrier — acceptance: per-level regions tick in parallel on workers, main thread joins, legacy callbacks run after  (ref: ROADMAP M3)
 - [ ] T-016 [P2] [L] Phase 3.3 — cross-region messages + fallback — acceptance: teleports/redstone/explosions across boundaries use queues; problematic regions merge back to main thread  (ref: ROADMAP M3)
@@ -43,3 +43,6 @@
 - [x] T-005 [P1] [M] Phase 1.3 — offload/merge scheduler — acceptance: offload on workers, merge on main before tick end, ordering tested  (ref: ROADMAP M1)
 - [x] T-006 [P1] [M] Phase 1.4 — metrics + `/multicore status` — acceptance: lock-free MSPT/per-thread metrics + command, formatter unit-tested  (ref: ROADMAP M1)
 - [x] T-007 [P1] [M] Phase 1.5 — Mod Menu config screen — acceptance: integration + screen + lang files, persists, restart warning, optional dependency  (ref: ROADMAP M1, D-007)
+- [x] T-008 [P1] [M] Wire the entrypoint — acceptance: config/pool/scheduler/metrics/command wired; lifecycle events; build green  (ref: ROADMAP M1)
+- [x] T-009 [P1] [S] First safe offload + benchmark — acceptance: `OffloadRegistry` with a `Safety` contract, `MetricsRollup` offload, `docs/BENCHMARKS.md`  (ref: ROADMAP M1)
+- [x] T-009b [P1] [M] Fix the external review findings — acceptance: `main`/`ModInitializer` entrypoint, scheduler barrier + submission-order merges, `execute` instead of `submit`, docs updated  (ref: REVIEW.md)

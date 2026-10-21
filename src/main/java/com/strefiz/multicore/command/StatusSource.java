@@ -38,4 +38,9 @@ public interface StatusSource {
 	default String regionSummary() {
 		return "";
 	}
+
+	/** @return the offloaded metrics rollup, or an empty string when there is none. */
+	default String metricsRollup() {
+		return "";
+	}
 }

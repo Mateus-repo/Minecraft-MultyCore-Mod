@@ -8,7 +8,7 @@
   "license": "MIT",
   "environment": "*",
   "entrypoints": {
-    "server": [
+    "main": [
       "com.strefiz.multicore.MultiCoreMod"
     ],
     "modmenu": [

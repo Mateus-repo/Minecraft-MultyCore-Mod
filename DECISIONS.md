@@ -85,3 +85,17 @@
 - **Context:** the user writes in Portuguese but the repo conventions and commits are English.
 - **Decision:** management docs, docstrings and commits in English; in-game strings via `assets/multicore/lang/{en_us,pt_pt}.json` (Portuguese first, matching the sibling mods).
 - **How to revert:** translate docs.
+
+### D-012 — Go/no-go benchmark between M1 and M3  (2026-10-21) — Accepted
+- **Context:** Phase 3 (regionised tick) is the only milestone that changes how the world tick runs, and it is high risk. Building it blind is wasteful if the profile shows the bottleneck is elsewhere.
+- **Options:** A) build M3 straight away; B) measure first and decide with data.
+- **Analysis:** intent — spend effort where it pays; external evidence — the review showed the gain depends entirely on player distribution and on where MSPT actually goes; risk — A can waste weeks; simplicity — B adds one measurement step.
+- **Decision:** run the benchmark in `docs/BENCHMARKS.md` (players together vs spread out, Spark profile) and decide go/no-go before M3. The plan stays ambitious; this only orders it.
+- **How to revert:** skip the benchmark and start M3 anyway.
+
+### D-013 — Use the common `main` entrypoint so singleplayer works  (2026-10-21) — Accepted
+- **Context:** the original design used `DedicatedServerModInitializer` (`"server"`), which does **not** run on the integrated server. The Mod Menu screen then edited a config file that nothing read in singleplayer.
+- **Options:** A) dedicated-server entrypoint only; B) common `main`/`ModInitializer`.
+- **Analysis:** precedent — `RocketWithSpearMod` uses `ModInitializer`; external evidence — Fabric only calls `server` on dedicated servers; intent — the Mod Menu screen must be meaningful; risk — none for dedicated servers.
+- **Decision:** B. Register the server lifecycle/tick events from `onInitialize()`; they simply never fire on a client without a server.
+- **How to revert:** switch back to `"server"`/`DedicatedServerModInitializer`.

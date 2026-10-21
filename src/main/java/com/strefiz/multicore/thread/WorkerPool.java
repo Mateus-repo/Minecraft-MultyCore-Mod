@@ -75,6 +75,10 @@ public final class WorkerPool {
 	/**
 	 * Submits a task, returning whether it was accepted.
 	 *
+	 * <p>Uses {@code execute} (not {@code submit}) so that an exception thrown by the task reaches
+	 * the thread's uncaught-exception handler instead of being silently stored in an unread
+	 * {@code Future}.
+	 *
 	 * @param task the work to run on a worker thread
 	 * @return {@code true} if the task was queued, {@code false} if the pool is stopped
 	 */
@@ -84,7 +88,7 @@ public final class WorkerPool {
 			return false;
 		}
 		try {
-			current.submit(task);
+			current.execute(task);
 			return true;
 		} catch (RejectedExecutionException e) {
 			return false;

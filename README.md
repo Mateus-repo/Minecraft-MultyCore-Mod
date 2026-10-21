@@ -75,14 +75,18 @@ breaking the mods that were not written for multithreading.
 
 ## Compatibility with Mod Menu
 
-The mod registers a `modmenu` entrypoint and only *suggests* Mod Menu (it is never required). The
-config screen is reachable when a client is present (singleplayer / LAN / dev). On a **dedicated
-server** there is no client GUI — the file and the command are authoritative.
+The mod registers a `modmenu` entrypoint and only *suggests* Mod Menu (it is never required). It
+uses the common `main` entrypoint, so it also runs on an **integrated server** (singleplayer/LAN):
+the Mod Menu screen edits the same `config/multicore.json` the server reads, and the changes apply
+after a restart. On a **dedicated server** there is no client GUI — the file and the command are
+authoritative.
 
 ## Known limitations (read before using)
 
-- **Mixin-based mods are not protected.** SAFE mode protects Fabric-event-based mods; a mod that
-  mixes directly into vanilla tick methods may still race.
+- **SAFE mode protects Fabric-event-based mods, not mixin-based mods.** Most Fabric mods use mixins
+  (or access the world directly), and those run on whatever thread vanilla uses. If a mod mixes into
+  `Entity.tick()`, `ServerLevel.tick()` or similar, it is **not** protected. This is the single
+  biggest gap between the original idea and what is technically possible without a server fork.
 - **Datapacks** that assume a single thread may misbehave.
 - **Not deterministic**: world generation already varies run-to-run with the same seed (see C2ME).
 - This is not a replacement for Lithium/C2ME/VMP/Moonrise — it is additive.

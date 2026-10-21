@@ -1,18 +1,22 @@
 package com.strefiz.multicore;
 
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 import com.strefiz.multicore.command.MultiCoreCommand;
 import com.strefiz.multicore.command.StatusSource;
 import com.strefiz.multicore.config.ConfigMode;
 import com.strefiz.multicore.config.ConfigStore;
 import com.strefiz.multicore.config.MultiCoreConfig;
+import com.strefiz.multicore.metrics.MetricsRollup;
 import com.strefiz.multicore.metrics.TickMetrics;
 import com.strefiz.multicore.thread.MainThread;
+import com.strefiz.multicore.thread.OffloadRegistry;
+import com.strefiz.multicore.thread.Safety;
 import com.strefiz.multicore.thread.TaskScheduler;
 import com.strefiz.multicore.thread.WorkerPool;
 
-import net.fabricmc.api.DedicatedServerModInitializer;
+import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -23,21 +27,27 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Entry point of the MultiCore server mod.
+ * Entry point of the MultiCore mod.
+ *
+ * <p>Uses the common {@code main} entrypoint (not the dedicated-server one) so the mod also runs
+ * on the <em>integrated server</em> (singleplayer/LAN): there the entrypoint fires on the client and
+ * the server events below are dispatched by the integrated server. On a dedicated server the same
+ * entrypoint fires on the server. The Mod Menu screen edits the same {@code config/multicore.json}
+ * in both cases.
  *
  * <p>Bootstraps the configuration, the worker pool, the scheduler, the metrics and the
  * {@code /multicore} command, and wires the lifecycle:
  *
  * <ul>
  *   <li>{@code SERVER_STARTING} — capture the main thread, load the config, start the pool;</li>
- *   <li>{@code START_SERVER_TICK} — start measuring;</li>
+ *   <li>{@code START_SERVER_TICK} — start measuring and submit the offloads;</li>
  *   <li>{@code END_SERVER_TICK} — merge offloaded results on the main thread, stop measuring;</li>
  *   <li>{@code SERVER_STOPPED} — shut the pool down.</li>
  * </ul>
  *
  * <p>It also implements {@link StatusSource} so the command reads the live state from one place.
  */
-public class MultiCoreMod implements DedicatedServerModInitializer, StatusSource {
+public class MultiCoreMod implements ModInitializer, StatusSource {
 
 	/** Mod id, used for logging and config lookup. */
 	public static final String MOD_ID = "multicore";
@@ -46,13 +56,15 @@ public class MultiCoreMod implements DedicatedServerModInitializer, StatusSource
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
 	private final TickMetrics metrics = new TickMetrics();
+	private final AtomicReference<String> rollup = new AtomicReference<>("");
 
 	private MultiCoreConfig config;
 	private WorkerPool pool;
 	private TaskScheduler scheduler;
+	private OffloadRegistry offloads;
 
 	@Override
-	public void onInitializeServer() {
+	public void onInitialize() {
 		CommandRegistrationCallback.EVENT.register((dispatcher, registry, environment) ->
 				MultiCoreCommand.register(dispatcher, this));
 		ServerLifecycleEvents.SERVER_STARTING.register(this::onServerStarting);
@@ -66,6 +78,9 @@ public class MultiCoreMod implements DedicatedServerModInitializer, StatusSource
 		config = ConfigStore.defaultStore().load();
 		pool = new WorkerPool("multicore-worker", config.workerThreads());
 		scheduler = new TaskScheduler(pool);
+		offloads = new OffloadRegistry(scheduler);
+		offloads.register("metrics-rollup", Safety.PURE,
+				() -> new MetricsRollup(metrics).hottest(5), rollup::set);
 		pool.start();
 
 		if (config.multithreaded()) {
@@ -78,6 +93,11 @@ public class MultiCoreMod implements DedicatedServerModInitializer, StatusSource
 
 	private void onStartTick(MinecraftServer server) {
 		metrics.startTick();
+		if (offloads != null) {
+			Safety maxAllowed = config != null && config.mode() == ConfigMode.AGGRESSIVE
+					? Safety.WORLD_STATE : Safety.PURE;
+			offloads.submitAll(maxAllowed);
+		}
 	}
 
 	private void onEndTick(MinecraftServer server) {
@@ -116,5 +136,10 @@ public class MultiCoreMod implements DedicatedServerModInitializer, StatusSource
 	@Override
 	public Map<String, Double> threadTimesMs() {
 		return metrics.threadTimesMs();
+	}
+
+	@Override
+	public String metricsRollup() {
+		return rollup.get();
 	}
 }
