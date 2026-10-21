@@ -1,0 +1,7 @@
+{
+  "enabled": true,
+  "push": false,
+  "minIntervalSeconds": 15,
+  "blockSecrets": true,
+  "message": "chore(wip): checkpoint"
+}

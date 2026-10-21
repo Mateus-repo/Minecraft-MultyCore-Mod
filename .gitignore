@@ -1,0 +1,40 @@
+# OpenCode (local state)
+.opencode/.session-start
+.opencode/autopilot.state
+STOP
+
+# Secrets and environment
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+credentials.json
+
+# System / editors
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+*.swp
+
+# Dependencies and common builds
+node_modules/
+dist/
+build/
+out/
+target/
+bin/
+obj/
+__pycache__/
+*.pyc
+.venv/
+venv/
+coverage/
+*.log
+.godot/
+.import/
