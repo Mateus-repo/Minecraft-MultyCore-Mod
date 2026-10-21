@@ -9,10 +9,9 @@
 | Module | Path | Purpose (1 sentence) | Public API (summary) | Depends on |
 |--------|---------|---------------------|----------------------|------------|
 | `config` | `config/` | parse/validate/persist the JSON config | `ConfigStore.load()/save()`, `MultiCoreConfig.normalized()`, `ConfigMode` | — |
-| `thread` | `thread/` | own the worker threads and identify the main thread | `WorkerPool.start()/submit()/shutdown()`, `MainThread.isCurrent()` | — |
-| _planned_ | `thread/TaskScheduler` | offload work and merge results on the main thread | `submitOffload(...)`, `drainToMain()` | `thread` |
-| _planned_ | `metrics/TickMetrics` | MSPT + per-thread timing, lock-free | `startTick()`, `endTick()`, `mspt()`, `snapshot()` | `thread` |
-| _planned_ | `command/MultiCoreCommand` | `/multicore` subcommands | `register(CommandDispatcher, CommandBuildContext)` | `config`, `metrics`, `compat` |
+| `thread` | `thread/` | own the worker threads and identify the main thread | `WorkerPool.start()/submit()/shutdown()`, `MainThread.isCurrent()`, `TaskScheduler.drainToMain()` | — |
+| `metrics` | `metrics/` | lock-free tick and per-thread timing | `TickMetrics.startTick()/endTick()/snapshot()/reset()` | — |
+| `command` | `command/` | `/multicore` status/compat/regions/reload | `MultiCoreCommand.register(...)`, `StatusFormatter` | `metrics` |
 | _planned_ | `compat/ModCompatibility` | classify mods from `fabric.mod.json` | `classify(String)`, `isLegacy(String)` | `config` |
 | _planned_ | `compat/LegacyHandoff` | queue legacy callbacks for the main thread | `enqueue(Runnable)`, `drain()` | `config` |
 | _planned_ | `region/Regionizer` | Folia-style region maintenance | `addChunk`, `removeChunk`, `tryMarkTicking`, `markNotTicking` | `config` |
@@ -33,6 +32,10 @@ Group by **concept**, not by file. _(Empty until the first module is implemented
 | `WorkerPool` | `thread/WorkerPool.java` | `WorkerPool(String,int)` · `start()` · `boolean submit(Runnable)` · `submitAll(...)` · `shutdown()` | Named worker pool with lifecycle | no | never throws | `MultiCoreMod`, `TaskScheduler` |
 | `MainThread` | `thread/MainThread.java` | `static capture()` · `static boolean isCurrent()` · `static Thread get()` | Identify the server main thread | yes | — | all modules |
 | `TaskScheduler` | `thread/TaskScheduler.java` | `TaskScheduler(WorkerPool)` · `submitOffload(Callable, Consumer)` · `submit(Runnable)` · `drainToMain()` | Offload work and merge results on the main thread | no | never throws | `MultiCoreMod`, `region` |
+| `TickMetrics` | `metrics/TickMetrics.java` | `startTick()` · `endTick()` · `beginWork/endWork` · `snapshot()` · `reset()` | Lock-free tick and per-thread timings | no | — | `command`, mixins |
+| `MultiCoreCommand` | `command/MultiCoreCommand.java` | `register(CommandDispatcher, StatusSource)` · `registerEvents(StatusSource)` | `/multicore` command tree | no | — | `MultiCoreMod` |
+| `StatusFormatter` | `command/StatusFormatter.java` | `status(StatusSource)` · `compat(String)` · `regions(String)` · `reloadWarning()` | Pure command text formatting | yes | — | `MultiCoreCommand` |
+| `StatusSource` | `command/StatusSource.java` | `mode()` · `workerThreads()` · `metrics()` · … | Read-only state for the command | yes | — | `MultiCoreCommand` |
 
 ## Known duplications (to resolve)
 
