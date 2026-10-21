@@ -9,20 +9,25 @@
 
 <!-- - (YYYY-MM-DD) [origin: agent/user] One-line idea — why it might be worth it -->
 
-_Empty.
+- (2026-10-21) [user] Support the **client** (integrated server + chunk meshing) — Phase 5; feasibility report first (see ROADMAP M5).
+- (2026-10-21) [user] Integrate **Mod Menu** for in-game config with a restart warning — promoted to M1/T-007.
+- (2026-10-21) [agent] Per-region CPU affinity (pin a region to a core) — M4/T-018, optional.
+- (2026-10-21) [agent] Web/Spark-style live dashboard of regions and threads — probably overkill; `/multicore status` first.
+- (2026-10-21) [agent] Deterministic mode (serialise ticks) for reproducible debugging — conflicts with the performance goal; defer.
 
 ## Under evaluation
 
-_Empty.
+_Empty._
 
 ## Promoted
 
-_Empty.
+- (2026-10-21) Mod Menu in-game config + restart warning → `TODO.md` T-007 (D-007).
+- (2026-10-21) Client support → `ROADMAP.md` M5 (report only).
 
 ## Deferred
 
-_Empty.
+_Empty._
 
 ## Rejected (with reason)
 
-_Empty.
+_Empty._

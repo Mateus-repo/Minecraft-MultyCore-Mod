@@ -8,23 +8,30 @@
 
 | Module | Path | Purpose (1 sentence) | Public API (summary) | Depends on |
 |--------|---------|---------------------|----------------------|------------|
-| _to be filled in_ | | | | |
+| _planned_ | `config/MultiCoreConfig` | parse/validate/persist the JSON config | `load()`, `get()`, `save()`, `workerThreads()`, `mode()` | — |
+| _planned_ | `thread/WorkerPool` | named worker pool with lifecycle | `start(int)`, `submit(Runnable)`, `submit(Callable)`, `shutdown()` | `config` |
+| _planned_ | `thread/TaskScheduler` | offload work and merge results on the main thread | `submitOffload(...)`, `drainToMain()` | `thread` |
+| _planned_ | `metrics/TickMetrics` | MSPT + per-thread timing, lock-free | `startTick()`, `endTick()`, `mspt()`, `snapshot()` | `thread` |
+| _planned_ | `command/MultiCoreCommand` | `/multicore` subcommands | `register(CommandDispatcher, CommandBuildContext)` | `config`, `metrics`, `compat` |
+| _planned_ | `compat/ModCompatibility` | classify mods from `fabric.mod.json` | `classify(String)`, `isLegacy(String)` | `config` |
+| _planned_ | `compat/LegacyHandoff` | queue legacy callbacks for the main thread | `enqueue(Runnable)`, `drain()` | `config` |
+| _planned_ | `region/Regionizer` | Folia-style region maintenance | `addChunk`, `removeChunk`, `tryMarkTicking`, `markNotTicking` | `config` |
+| _planned_ | `region/RegionScheduler` | run regions in parallel and join | `tickRegions(...)`, `awaitBarrier()` | `thread`, `compat` |
+
+> Replace `_planned_` rows with real rows (and real signatures) as the code lands. Do not keep a row
+> that no longer exists.
 
 ## Reusable functions, types and components
 
-Group by **concept** (text, dates, validation, files, HTTP…), not by file.
+Group by **concept**, not by file. _(Empty until the first module is implemented.)_
 
 | Name | Path | Signature | What it does | Pure? | Errors | Used by |
 |------|---------|------------|-----------|-------|-------|-----------|
-| _to be filled in_ | | | | | | |
-
-<!-- Example row:
-| `chunk` | `src/shared/lists/chunk.ts` | `chunk<T>(items: T[], size: number): T[][]` | Splits a list into fixed-size blocks | yes | `RangeError` if `size` ≤ 0 | `billing`, `export` |
--->
+| | | | | | | |
 
 ## Known duplications (to resolve)
 
-_Similar code that has not been unified yet, with the associated task (`T-NNN`). Empty is the goal._
+_None yet._
 
 ## Catalog conventions
 

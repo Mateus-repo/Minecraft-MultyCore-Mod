@@ -5,8 +5,10 @@
 
 ## Structure
 
-- Code in `src/`, tests in `tests/` (or alongside the code, depending on the stack) — _confirm with `/bootstrap`_.
+- Code in `src/main/java/com/strefiz/multicore/`, tests in `src/test/java/` mirroring it.
 - One module = one responsibility. Files < ~300 lines, functions < ~40 lines (guidelines, not dogma).
+- Group by feature: `config`, `thread`, `metrics`, `command`, `compat`, `region`, `mixin`.
+- No generic `utils`/`helpers`: group by concept.
 
 ## Reuse and modules
 
@@ -14,42 +16,57 @@
 - Pure functions, explicit inputs/outputs, no globals; I/O and state at the edges; dependencies as parameters.
 - 1-2-3 rule: 1st consumer → private to the feature · 2nd consumer → `shared/<concept>/` · 3rd case → generalize.
 - Each module: single entry point (minimal public API), `README.md`, tests on the public API. Always import through the entry point.
-- No generic `utils`/`helpers`: group by concept.
 
 ## Naming
 
-- Files/folders: _e.g.: `kebab-case`_ · Types/classes: `PascalCase` · functions/variables: _e.g.: `camelCase`_ · constants: `UPPER_SNAKE_CASE`.
-- Names say **what**, not **how**. Avoid obscure abbreviations. Booleans: `isX`, `hasX`, `canX`.
+- Files/folders: `PascalCase.java` for types; packages lowercase.
+- Types/classes: `PascalCase` · methods/variables: `camelCase` · constants: `UPPER_SNAKE_CASE`.
+- Names say **what**, not **how**. Booleans: `isX`, `hasX`, `canX`.
+- Thread names: `multicore-worker-N` (visible in crash reports and `/multicore status`).
 
 ## Style
 
-- Automatic formatting (the stack's formatter) — never debate style by hand.
-- Comments explain **why**; code explains **how**.
-- No dead code or forgotten *feature flags*.
+- Java, formatted with the default IntelliJ/Gradle style used by the sibling mods (4 spaces, no tabs).
+- Comments explain **why**; code explains **how**. No dead code, no orphan `TODO`s.
+- Never swallow an exception silently; log with a level and a useful message.
 
 ## Documentation
 
-- Docstrings on **everything** exported: what, parameters, return, errors, side effects, example (the stack's idiomatic format).
-- `README.md` in each module (template: `docs/templates/MODULE_README.md`); a line in `docs/MODULES.md` for whatever is reusable.
-- Language: _identifiers in English; docstrings/README in English_ (adjust to the project).
+- Docstrings on **everything** exported: what, parameters, return, errors, side effects, example.
+- `README.md` in each module; a line in `docs/MODULES.md` for whatever is reusable.
+- Language: identifiers and docstrings in English; in-game strings in `assets/multicore/lang/{en_us,pt_pt}.json`.
 - Code and docs change in the same commit.
 
 ## Errors and logging
 
-- Errors handled at the boundaries; actionable messages; never swallow exceptions silently.
-- Logs with levels (`debug/info/warn/error`); never log secrets or personal data.
+- Errors handled at the boundaries; actionable messages.
+- Use SLF4J (`org.slf4j.Logger`) via `LogManager.getLogger("multicore")`; levels `debug/info/warn/error`.
+- Never log secrets or personal data.
+
+## Thread-safety rules (project-specific)
+
+- World state is only touched by its **owner thread**. Any other access goes through a queue.
+- Never call `Thread.sleep`/`wait` on the server main thread; never block a region thread on another region.
+- Worker threads must be created by `WorkerPool` (named), never by ad-hoc `new Thread(...)`.
+- Offloaded work must not advance RNG or mutate world state.
 
 ## Dependencies
 
-- Prefer the standard library. New dependency: justify it in `DECISIONS.md` (maintenance, size, license).
+- Prefer the JDK and what Minecraft already bundles (Gson, FastUtil, Guava, Brigadier, SLF4J).
+- Mod Menu is `compileOnly` + `localRuntime` (never a hard dependency).
+- New dependency: justify it in `DECISIONS.md`.
 
 ## Git
 
 - Conventional Commits (in English). Branches: `feat/…`, `fix/…`, `chore/…` (long-running work can live in `ai/<topic>`).
 
-## Stack-specific (Java 25 + Minecraft Fabric server-side mod)
+## Stack-specific (Java 25 + Minecraft Fabric 26.3)
 
-_To be filled in with `/bootstrap`: formatter, linter, package manager, typical structure._
+- Build: Gradle 9.8.0 wrapper, Loom 1.17-SNAPSHOT, Java 25 toolchain, Fabric API 0.160.5+26.3.
+- Commands: `./gradlew build` · `bash scripts/check.sh`.
+- Mixins: declare in `multicore.mixins.json`; keep them thin and put logic in modules.
+- Config: JSON via Gson in `config/multicore.json`.
+- Entrypoint: `"server"` → `DedicatedServerModInitializer` (server-side only for now).
 
 ## Commands
 

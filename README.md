@@ -1,65 +1,103 @@
 # Minecraft MultiCore Mod
 
-Fabric mod that parallelizes the Minecraft server tick across configurable worker threads while keeping legacy (non-multithreaded) mods single-threaded
+A **Fabric mod** that lets a normal Minecraft **server** use more than one core — *without*
+breaking the mods that were not written for multithreading.
 
-> **Status:** in progress · **Stack:** Java 25 + Minecraft Fabric server-side mod · **Created:** 2026-10-21
+> **Status:** early development (M0/M1). The architecture and the full plan are in `ROADMAP.md`;
+> the deep research is in `docs/RESEARCH.md`.
 
 ## What it does
 
-<!-- 2–4 sentences: the problem it solves and for whom. Fill in with /bootstrap. -->
+- Runs the safe, non-world-state work of the server tick on a **configurable pool of worker
+  threads**, and gives the results back to the main thread before the tick ends.
+- **SAFE mode (default):** mods that have not opted in keep running on the **main thread**, exactly
+  as they do today. The mod routes their callbacks back to the main thread.
+- **AGGRESSIVE mode (opt-in):** for servers whose modpack has been verified, the world tick itself is
+  split into **independent regions** (the Folia-style design) so they run in parallel.
+- Configurable number of worker threads (default `1` worker → 2 threads total: 1 main + 1 worker;
+  raise it for more cores).
+- In-game configuration through **Mod Menu**, with a clear **"restart to apply"** notice.
+- `/multicore` command for status, threads, regions and the list of legacy mods.
 
-## Features
+## Why (the honest version)
 
-- [ ] _to be filled in_
+- Java cannot pin threads to cores, so the setting is a **worker-thread count**, not a core count.
+  CPU affinity is an optional extra (see `ROADMAP.md` M4).
+- Minecraft already runs **chunk I/O, chunk generation and light updates** on background threads.
+  The remaining bottleneck is the **mutable world state** tick (entities, block ticks, redstone,
+  pathfinding), which is why the big win only comes with the regionised tick (M3).
+- Folia — the reference implementation — states that unmodified plugins have **~0 compatibility**.
+  We take the same position: **a mod is thread-safe only if it declares it**, everything else is
+  legacy and stays on the main thread.
 
-## Getting started
+## Requirements
+
+| Component | Version |
+|-----------|---------|
+| Minecraft | **26.3** |
+| Fabric Loader | **>= 0.19.5** |
+| Fabric API | **0.160.5+26.3** (or compatible) |
+| Java | **25** |
+| Environment | Dedicated **server** (Linux / Windows). Also loaded on the server side of an integrated server. |
+| Optional | [Mod Menu](https://modrinth.com/mod/modmenu) for the in-game config screen |
+
+## Install
+
+1. Install Fabric Loader for 26.3 and Fabric API.
+2. Drop `multicore-*.jar` into the server's `mods/` folder.
+3. (Optional) add Mod Menu if you want the config screen in singleplayer/LAN.
+4. Start the server once to generate `config/multicore.json`.
+5. Edit the config, then **restart** (thread/region settings are applied at startup).
+
+## Configuration (`config/multicore.json`)
+
+```jsonc
+{
+  "workerThreads": 1,          // 1 main + 1 worker = 2 threads total; raise for more cores
+  "mode": "SAFE",              // SAFE (default) | AGGRESSIVE
+  "modWhitelist": [],          // only these mods may use region threads
+  "modBlacklist": [],          // always treat these mods as legacy
+  "debug": false               // thread-safety instrumentation + verbose logs
+}
+```
+
+> Changing `workerThreads`, `mode` or the region settings **requires a restart**. The Mod Menu
+> screen and `/multicore` save the file but cannot apply it live.
+
+## Command
+
+| Command | What it does |
+|---------|--------------|
+| `/multicore status` | threads, mode, MSPT, per-thread time |
+| `/multicore regions` | regions per level and their owner thread (M3) |
+| `/multicore compat` | legacy vs compatible mods |
+| `/multicore compat dump` | debug report of off-thread world access (debug mode) |
+
+## Compatibility with Mod Menu
+
+The mod registers a `modmenu` entrypoint and only *suggests* Mod Menu (it is never required). The
+config screen is reachable when a client is present (singleplayer / LAN / dev). On a **dedicated
+server** there is no client GUI — the file and the command are authoritative.
+
+## Known limitations (read before using)
+
+- **Mixin-based mods are not protected.** SAFE mode protects Fabric-event-based mods; a mod that
+  mixes directly into vanilla tick methods may still race.
+- **Datapacks** that assume a single thread may misbehave.
+- **Not deterministic**: world generation already varies run-to-run with the same seed (see C2ME).
+- This is not a replacement for Lithium/C2ME/VMP/Moonrise — it is additive.
+
+See `docs/RESEARCH.md` §7.3 and §8 for the full, honest risk list.
+
+## Development
 
 ```bash
-# 1. Install dependencies
-# TODO
-
-# 2. Run
-# TODO
-
-# 3. Tests
-# TODO
+./gradlew build          # jar in build/libs/
+bash scripts/check.sh    # full verification
 ```
 
-## Repository structure
-
-```
-.
-├── AGENTS.md          # rules for AI agents
-├── ROADMAP.md         # vision and milestones
-├── TODO.md            # task queue
-├── PROGRESS.md        # current state and session log
-├── DECISIONS.md       # technical decisions
-├── QUESTIONS.md       # questions for the user
-├── BUGS.md            # known bugs
-├── REVIEW.md          # self-reviews
-├── IDEAS.md           # out-of-scope ideas
-├── ARCHITECTURE.md    # architecture
-├── CHANGELOG.md       # version history
-├── docs/              # conventions, testing, design, glossary, module catalog (MODULES.md)
-├── scripts/           # utilities (check, commit, autopilot…)
-├── .opencode/         # OpenCode skills, commands, agents and plugins
-└── src/               # code (to be created)
-```
-
-## Development with OpenCode
-
-```bash
-opencode            # open at the repo root
-/bootstrap          # (first time) fill in the docs and the project commands
-/autopilot 120      # autonomous work for ~2h
-```
-
-See `docs/TEMPLATE_GUIDE.md` for the full workflow guide.
-
-## Contributing
-
-Commits follow [Conventional Commits](https://www.conventionalcommits.org/). Before submitting: `bash scripts/check.sh`.
+Java 25 toolchain, Gradle 9.8.0 wrapper, Loom 1.17-SNAPSHOT.
 
 ## License
 
-_To be defined._
+MIT — see `LICENSE`.
