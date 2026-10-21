@@ -32,6 +32,7 @@ Group by **concept**, not by file. _(Empty until the first module is implemented
 | `ConfigMode` | `config/ConfigMode.java` | `SAFE` \| `AGGRESSIVE` · `static fromString(String)` | Execution mode; unknown → `SAFE` | yes | — | `MultiCoreConfig` |
 | `WorkerPool` | `thread/WorkerPool.java` | `WorkerPool(String,int)` · `start()` · `boolean submit(Runnable)` · `submitAll(...)` · `shutdown()` | Named worker pool with lifecycle | no | never throws | `MultiCoreMod`, `TaskScheduler` |
 | `MainThread` | `thread/MainThread.java` | `static capture()` · `static boolean isCurrent()` · `static Thread get()` | Identify the server main thread | yes | — | all modules |
+| `TaskScheduler` | `thread/TaskScheduler.java` | `TaskScheduler(WorkerPool)` · `submitOffload(Callable, Consumer)` · `submit(Runnable)` · `drainToMain()` | Offload work and merge results on the main thread | no | never throws | `MultiCoreMod`, `region` |
 
 ## Known duplications (to resolve)
 

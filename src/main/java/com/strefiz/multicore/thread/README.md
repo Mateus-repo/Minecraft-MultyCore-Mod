@@ -20,13 +20,18 @@ Entry point: `thread/WorkerPool` and `thread/MainThread`. Everything else is int
 | `shutdown()` | `void shutdown()` | Graceful drain, then stop | never throws |
 | `MainThread.capture()` | `static void capture()` | Record the server main thread | — |
 | `MainThread.isCurrent()` | `static boolean isCurrent()` | Is the caller the main thread? | — |
+| `TaskScheduler` | `TaskScheduler(WorkerPool)` · `<T> void submitOffload(Callable<T>, Consumer<T>)` · `boolean submit(Runnable)` · `int drainToMain()` | Offload work and merge results on the main thread | never throws |
 
 ## Usage example
 
 ```java
 WorkerPool pool = new WorkerPool("multicore-worker", config.workerThreads());
 pool.start();
-pool.submit(() -> doCpuHeavyWork());
+TaskScheduler scheduler = new TaskScheduler(pool);
+
+scheduler.submitOffload(() -> doCpuHeavyWork(), result -> applyOnMainThread(result));
+// ... on the main thread, at the end of the tick:
+scheduler.drainToMain();
 pool.shutdown();
 ```
 
