@@ -9,7 +9,7 @@
 | Module | Path | Purpose (1 sentence) | Public API (summary) | Depends on |
 |--------|---------|---------------------|----------------------|------------|
 | `config` | `config/` | parse/validate/persist the JSON config | `ConfigStore.load()/save()`, `MultiCoreConfig.normalized()`, `ConfigMode` | — |
-| _planned_ | `thread/WorkerPool` | named worker pool with lifecycle | `start(int)`, `submit(Runnable)`, `submit(Callable)`, `shutdown()` | `config` |
+| `thread` | `thread/` | own the worker threads and identify the main thread | `WorkerPool.start()/submit()/shutdown()`, `MainThread.isCurrent()` | — |
 | _planned_ | `thread/TaskScheduler` | offload work and merge results on the main thread | `submitOffload(...)`, `drainToMain()` | `thread` |
 | _planned_ | `metrics/TickMetrics` | MSPT + per-thread timing, lock-free | `startTick()`, `endTick()`, `mspt()`, `snapshot()` | `thread` |
 | _planned_ | `command/MultiCoreCommand` | `/multicore` subcommands | `register(CommandDispatcher, CommandBuildContext)` | `config`, `metrics`, `compat` |
@@ -30,6 +30,8 @@ Group by **concept**, not by file. _(Empty until the first module is implemented
 | `ConfigStore` | `config/ConfigStore.java` | `ConfigStore(Path)` · `static defaultStore()` · `MultiCoreConfig load()` · `void save(MultiCoreConfig)` | JSON config load/save in `config/multicore.json`; defaults on any error | no (I/O) | never throws | `MultiCoreMod`, Mod Menu screen |
 | `MultiCoreConfig` | `config/MultiCoreConfig.java` | `workerThreads()`, `mode()`, `debug()`, `modWhitelist()`, `modBlacklist()`, `threadCount()`, `multithreaded()`, `normalized()` | Config data + validation | `normalized()` yes, rest no | — | `WorkerPool`, `ModCompatibility` |
 | `ConfigMode` | `config/ConfigMode.java` | `SAFE` \| `AGGRESSIVE` · `static fromString(String)` | Execution mode; unknown → `SAFE` | yes | — | `MultiCoreConfig` |
+| `WorkerPool` | `thread/WorkerPool.java` | `WorkerPool(String,int)` · `start()` · `boolean submit(Runnable)` · `submitAll(...)` · `shutdown()` | Named worker pool with lifecycle | no | never throws | `MultiCoreMod`, `TaskScheduler` |
+| `MainThread` | `thread/MainThread.java` | `static capture()` · `static boolean isCurrent()` · `static Thread get()` | Identify the server main thread | yes | — | all modules |
 
 ## Known duplications (to resolve)
 

@@ -38,5 +38,8 @@ __pycache__/
 venv/
 coverage/
 *.log
+*.log.gz
+logs/
+run/
 .godot/
 .import/
