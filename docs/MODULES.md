@@ -13,6 +13,7 @@
 | `metrics` | `metrics/` | lock-free tick and per-thread timing | `TickMetrics.startTick()/endTick()/snapshot()/reset()` | — |
 | `command` | `command/` | `/multicore` status/compat/regions/reload | `MultiCoreCommand.register(...)`, `StatusFormatter` | `metrics`, `compat` |
 | `compat` | `compat/` | Mod Menu config screen + mod classification | `ModCompatibility.scan()`, `ModClassifier.classify()`, `ModMenuIntegration`, `MultiCoreConfigScreen` | `config` |
+| `region` | `region/` | Folia-style region model (Phase 3) | `Region`, `RegionState`, `RegionSection` | — |
 | _planned_ | `compat/ModCompatibility` | classify mods from `fabric.mod.json` | `classify(String)`, `isLegacy(String)` | `config` |
 | _planned_ | `compat/LegacyHandoff` | queue legacy callbacks for the main thread | `enqueue(Runnable)`, `drain()` | `config` |
 | _planned_ | `region/Regionizer` | Folia-style region maintenance | `addChunk`, `removeChunk`, `tryMarkTicking`, `markNotTicking` | `config` |
@@ -46,6 +47,9 @@ Group by **concept**, not by file. _(Empty until the first module is implemented
 | `ModClassification` | `compat/ModClassification.java` | `LEGACY` \| `COMPATIBLE` | Safety level | yes | — | `compat` |
 | `LegacyHandoff` | `compat/LegacyHandoff.java` | `create()` · `enqueue(Runnable)` · `drainToMain()` | Queue legacy callbacks for the main thread | no | never throws | `MultiCoreMod` |
 | `MultiCoreCompat` | `compat/MultiCoreCompat.java` | `runOnMain(Runnable)` · `isThreadSafe()` · `setHandler(Handler)` | Public API for mod authors | yes | — | `MultiCoreMod` |
+| `Region` | `region/Region.java` | `addSection(section)` · `removeSection(section)` · `tryMarkTicking()` · `markNotTicking()` · `putRegionLocal/getRegionLocal` | Region lifecycle + section ownership | no | `IllegalStateException` if ticking | `RegionScheduler`, mixins |
+| `RegionState` | `region/RegionState.java` | `TRANSIENT` \| `READY` \| `TICKING` \| `DEAD` | Region lifecycle state | yes | — | `Region`, `Regionizer` |
+| `RegionSection` | `region/RegionSection.java` | `RegionSection(x,z)` · `static fromChunk(chunkX, chunkZ, chunkShift)` | Section coordinate (N×N chunk grid) | yes | — | `Region`, `Regionizer` |
 | `ModMenuIntegration` | `compat/ModMenuIntegration.java` | `implements ModMenuApi` · `getModConfigScreenFactory()` | Expose the config screen to Mod Menu | no | — | Mod Menu |
 
 ## Known duplications (to resolve)

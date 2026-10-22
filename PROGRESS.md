@@ -25,6 +25,12 @@
 - **Next step:** …
 -->
 
+### 2026-10-22 — Phase 3.1: region model (Folia-style)
+- **Done:** T-014 — `Region` (four states, section ownership, region-local data), `RegionState`, `RegionSection` (N×N chunk grid). All pure, unit-tested without Minecraft.  (ref: ROADMAP M3)
+- **Decisions:** none new.
+- **State on exit:** build ✅ · tests ✅ · branch `main` · last commit `feat(region): add region model (Folia-style) with unit tests`.
+- **Next step:** T-015 (region scheduler + barrier) or T-023 (benchmark go/no-go).
+
 ### 2026-10-22 — Phase 2.4: debug thread-checker + wiring into scheduler
 - **Done:** `ThreadChecker` (debug-only, warns when world/region state is accessed off the owner thread), wired into `TaskScheduler.drainToMain()` and gated by `config.debug()`; unit tests; build/tests/check green.
 - **Decisions:** none new.
