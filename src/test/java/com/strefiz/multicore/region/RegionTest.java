@@ -7,10 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.util.concurrent.atomic.AtomicReference;
-
-import org.junit.jupiter.api.Test;
 
 import org.junit.jupiter.api.Test;
 
@@ -29,24 +26,40 @@ class RegionTest {
 	}
 
 	@Test
-	void tryMarkTickingSetsOwner() throws InterruptedException {
+	void tryMarkTickingChangesState() {
+		Region region = new Region();
+
+		assertTrue(region.tryMarkTicking());
+		assertEquals(RegionState.TICKING, region.state());
+		assertNull(region.ownerThread());
+	}
+
+	@Test
+	void tryMarkTickingFailsWhenAlreadyTicking() {
+		Region region = new Region();
+
+		assertTrue(region.tryMarkTicking());
+		assertFalse(region.tryMarkTicking());
+		assertEquals(RegionState.TICKING, region.state());
+	}
+
+	@Test
+	void markTickingOwnerSetsOwner() {
 		Region region = new Region();
 		Thread owner = Thread.currentThread();
 
-		assertTrue(region.tryMarkTicking());
+		region.tryMarkTicking();
+		region.markTickingOwner(owner);
 
 		assertEquals(RegionState.TICKING, region.state());
 		assertSame(owner, region.ownerThread());
 	}
 
 	@Test
-	void tryMarkTickingFailsWhenAlreadyTicking() throws InterruptedException {
+	void markTickingOwnerFailsWhenNotTicking() {
 		Region region = new Region();
-		Thread owner = Thread.currentThread();
 
-		assertTrue(region.tryMarkTicking());
-		assertFalse(region.tryMarkTicking());
-		assertSame(owner, region.ownerThread());
+		assertThrows(IllegalStateException.class, () -> region.markTickingOwner(Thread.currentThread()));
 	}
 
 	@Test
@@ -55,6 +68,7 @@ class RegionTest {
 		Thread owner = Thread.currentThread();
 
 		region.tryMarkTicking();
+		region.markTickingOwner(owner);
 		assertTrue(region.markNotTicking());
 
 		assertEquals(RegionState.READY, region.state());
@@ -65,9 +79,11 @@ class RegionTest {
 	void markNotTickingByOtherThreadFails() throws InterruptedException {
 		Region region = new Region();
 		Thread owner = Thread.currentThread();
-		AtomicReference<Boolean> result = new AtomicReference<>();
 
 		region.tryMarkTicking();
+		region.markTickingOwner(owner);
+		AtomicReference<Boolean> result = new AtomicReference<>();
+
 		Thread other = new Thread(() -> result.set(region.markNotTicking()));
 		other.start();
 		other.join();
@@ -84,6 +100,7 @@ class RegionTest {
 		RegionSection section = RegionSection.fromChunk(100, 200, 4);
 
 		region.tryMarkTicking();
+		region.markTickingOwner(owner);
 
 		assertThrows(IllegalStateException.class, () -> region.addSection(section));
 		assertThrows(IllegalStateException.class, () -> region.removeSection(section));
@@ -126,8 +143,8 @@ class RegionTest {
 	@Test
 	void markDeadFailsWhileTicking() throws InterruptedException {
 		Region region = new Region();
-		Thread.currentThread(); // owner
 		region.tryMarkTicking();
+		region.markTickingOwner(Thread.currentThread());
 
 		assertThrows(IllegalStateException.class, region::markDead);
 	}
@@ -143,6 +160,7 @@ class RegionTest {
 	void markTransientFailsWhileTicking() throws InterruptedException {
 		Region region = new Region();
 		region.tryMarkTicking();
+		region.markTickingOwner(Thread.currentThread());
 
 		assertThrows(IllegalStateException.class, region::markTransient);
 	}
@@ -154,6 +172,7 @@ class RegionTest {
 		String key = "my-data";
 
 		region.tryMarkTicking();
+		region.markTickingOwner(owner);
 		region.putRegionLocal(key, 42);
 
 		assertEquals(Integer.valueOf(42), region.getRegionLocal(key));

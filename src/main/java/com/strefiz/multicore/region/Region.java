@@ -89,7 +89,8 @@ public final class Region {
 
 	/**
 	 * Attempts to transition this region from {@link RegionState#READY} to
-	 * {@link RegionState#TICKING}, recording the calling thread as the owner.
+	 * {@link RegionState#TICKING}. The owner thread is set when the tick actually begins (see
+	 * {@link #markTickingOwner(Thread)}).
 	 *
 	 * @return {@code true} if the transition succeeded, {@code false} if the region was not READY
 	 */
@@ -98,8 +99,19 @@ public final class Region {
 			return false;
 		}
 		state = RegionState.TICKING;
-		ownerThread = Thread.currentThread();
 		return true;
+	}
+
+	/**
+	 * Called by the worker thread that begins ticking this region, to record the owner thread.
+	 *
+	 * @param owner the thread that owns this region while ticking
+	 */
+	public void markTickingOwner(Thread owner) {
+		if (state != RegionState.TICKING) {
+			throw new IllegalStateException("Region " + id + " is not ticking");
+		}
+		this.ownerThread = owner;
 	}
 
 	/**
