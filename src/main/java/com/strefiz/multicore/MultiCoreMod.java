@@ -69,7 +69,7 @@ public class MultiCoreMod implements ModInitializer, StatusSource, MultiCoreComp
 	private OffloadRegistry offloads;
 	private ModCompatibility compat;
 	private LegacyHandoff legacyHandoff;
-	private ThreadChecker threadChecker;
+	private ThreadChecker threadChecker = ThreadChecker.debug(false);
 
 	@Override
 	public void onInitialize() {
