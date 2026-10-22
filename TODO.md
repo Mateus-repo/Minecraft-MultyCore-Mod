@@ -11,7 +11,6 @@ _Empty — Phase 2.1 done; next is T-011 (legacy hand-off)._
 
 ## Next
 
-- [ ] T-011 [P2] [M] Phase 2.2 — legacy hand-off — acceptance: legacy Fabric callbacks run on the main thread in SAFE mode; a "naughty" legacy mod test does not corrupt state  (ref: ROADMAP M2)
 - [ ] T-012 [P2] [M] Phase 2.3 — `MultiCoreCompat` public API — acceptance: `runOnRegion`/`runOnMain`/`RegionLocal` documented, tested, listed in `docs/MODULES.md`  (ref: ROADMAP M2)
 - [ ] T-013 [P2] [S] Phase 2.4 — instrumentation — acceptance: debug thread-check logs off-thread world access; `/multicore compat dump` reports it  (ref: ROADMAP M2)
 - [ ] T-023 [P2] [M] Run the M1 benchmark and write the go/no-go report — acceptance: fill the table in `docs/BENCHMARKS.md` for players-together and players-spread scenarios (with/without the mod), include a Spark profile, and state go/no-go for Phase 3  (ref: D-012)
@@ -44,4 +43,4 @@ _Empty — Phase 2.1 done; next is T-011 (legacy hand-off)._
 - [x] T-007 [P1] [M] Phase 1.5 — Mod Menu config screen — acceptance: integration + screen + lang files, persists, restart warning, optional dependency  (ref: ROADMAP M1, D-007)
 - [x] T-008 [P1] [M] Wire the entrypoint — acceptance: config/pool/scheduler/metrics/command wired; lifecycle events; build green  (ref: ROADMAP M1)
 - [x] T-009 [P1] [S] First safe offload + benchmark — acceptance: `OffloadRegistry` with a `Safety` contract, `MetricsRollup` offload, `docs/BENCHMARKS.md`  (ref: ROADMAP M1)
-- [x] T-010 [P2] [M] Phase 2.1 — mod scan — acceptance: `ModCompatibility.scan()`, `ModClassifier.classify()` reads `custom.multicore.threadSafe`, whitelist/blacklist overrides, `/multicore compat` + `dump`  (ref: ROADMAP M2, D-005)
+- [x] T-011 [P2] [M] Phase 2.2 — legacy hand-off — acceptance: `LegacyHandoff` queue + drain on main thread, `MultiCoreCompat.runOnMain`/`isThreadSafe` public API, exceptions don't propagate  (ref: ROADMAP M2)

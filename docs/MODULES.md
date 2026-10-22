@@ -43,8 +43,9 @@ Group by **concept**, not by file. _(Empty until the first module is implemented
 | `ModClassifier` | `compat/ModClassifier.java` | `static classify(ModMetadata)` | Pure: read `custom.multicore.threadSafe` | yes | — | `ModCompatibility` |
 | `ModCompatibility` | `compat/ModCompatibility.java` | `scan()` · `isLegacy(id)` · `isCompatible(id)` · `forceLegacy(id)` · `forceCompatible(id)` · `classifications()` | Scan mods + whitelist/blacklist overrides | no | never throws | `MultiCoreMod`, `command` |
 | `ModClassification` | `compat/ModClassification.java` | `LEGACY` \| `COMPATIBLE` | Safety level | yes | — | `compat` |
+| `LegacyHandoff` | `compat/LegacyHandoff.java` | `create()` · `enqueue(Runnable)` · `drainToMain()` | Queue legacy callbacks for the main thread | no | never throws | `MultiCoreMod` |
+| `MultiCoreCompat` | `compat/MultiCoreCompat.java` | `runOnMain(Runnable)` · `isThreadSafe()` · `setHandler(Handler)` | Public API for mod authors | yes | — | `MultiCoreMod` |
 | `ModMenuIntegration` | `compat/ModMenuIntegration.java` | `implements ModMenuApi` · `getModConfigScreenFactory()` | Expose the config screen to Mod Menu | no | — | Mod Menu |
-| `MultiCoreConfigScreen` | `compat/MultiCoreConfigScreen.java` | `extends Screen` | Native config screen; persists on change; restart warning | no | never throws | Mod Menu |
 
 ## Known duplications (to resolve)
 

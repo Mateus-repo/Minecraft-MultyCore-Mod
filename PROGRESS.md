@@ -25,6 +25,12 @@
 - **Next step:** …
 -->
 
+### 2026-10-22 — Phase 2.2: legacy handoff + MultiCoreCompat public API
+- **Done:** T-011 — `LegacyHandoff` (queue + drain on main thread, exceptions don't propagate), `MultiCoreCompat` public API (`runOnMain`/`isThreadSafe`/`setHandler`), wired into `MultiCoreMod` (implements `MultiCoreCompat.Handler`, `legacyHandoff.drainToMain()` on `END_SERVER_TICK`); unit tests; build/tests/check green.
+- **Decisions:** none new.
+- **State on exit:** build ✅ · tests ✅ · branch `main` · last commit `feat(compat): add legacy handoff + MultiCoreCompat public API`.
+- **Next step:** T-012 — `RegionLocal` / `runOnRegion` (Phase 2.3), then T-013 instrumentation, then T-023 benchmark go/no-go.
+
 ### 2026-10-22 — Phase 2.1: mod scan + classification + /multicore compat dump
 - **Done:** T-010 — `ModClassification`, `ModClassifier` (pure, reads `custom.multicore.threadSafe`), `ModCompatibility.scan()` via Fabric Loader with whitelist/blacklist overrides; wired into `MultiCoreMod` (StatusSource.compatSummary/compatDump); `/multicore compat` and `/multicore compat dump`; unit tests for classifier + compatibility; build/tests/check green.
 - **Decisions:** none new.
