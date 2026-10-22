@@ -25,6 +25,12 @@
 - **Next step:** …
 -->
 
+### 2026-10-22 — Phase 2.4: debug thread-checker + wiring into scheduler
+- **Done:** `ThreadChecker` (debug-only, warns when world/region state is accessed off the owner thread), wired into `TaskScheduler.drainToMain()` and gated by `config.debug()`; unit tests; build/tests/check green.
+- **Decisions:** none new.
+- **State on exit:** build ✅ · tests ✅ · branch `main` · last commit `feat(thread): add debug thread-checker + wire into scheduler`.
+- **Next step:** T-023 — run the M1 benchmark and write the go/no-go report.
+
 ### 2026-10-22 — Phase 2.2: legacy handoff + MultiCoreCompat public API
 - **Done:** T-011 — `LegacyHandoff` (queue + drain on main thread, exceptions don't propagate), `MultiCoreCompat` public API (`runOnMain`/`isThreadSafe`/`setHandler`), wired into `MultiCoreMod` (implements `MultiCoreCompat.Handler`, `legacyHandoff.drainToMain()` on `END_SERVER_TICK`); unit tests; build/tests/check green.
 - **Decisions:** none new.
