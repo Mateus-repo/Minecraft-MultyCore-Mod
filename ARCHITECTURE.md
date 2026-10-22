@@ -119,6 +119,23 @@ Catalogue of reusable functions/components: `docs/MODULES.md`. Each module has i
 | Mod Menu (optional) | config screen | `suggests.modmenu` | absent → screen unavailable, no crash |
 | Brigadier | `/multicore` command | — | registration failure → log error |
 
+## External references
+
+The FabricMC GitHub organisation (`https://github.com/fabricmc`) is the centre of everything needed
+if we ever build our own modified Fabric server jar:
+- https://github.com/FabricMC/fabric-api
+- https://github.com/FabricMC/yarn
+- https://github.com/FabricMC/fabric-example-mod
+- https://github.com/FabricMC/fabric-loader
+- https://github.com/FabricMC/fabric-loom
+- https://github.com/FabricMC/fabric-language-kotlin
+- https://github.com/FabricMC/fabric-docs
+- https://github.com/FabricMC/Mixin
+- https://github.com/FabricMC/fabric-meta
+- https://github.com/FabricMC/mapping-io
+- https://github.com/FabricMC/fabricmc.net
+
+
 ## Relevant decisions
 
 See `DECISIONS.md`: D-003 (server-first), D-004 (stack), D-005 (opt-in compatibility), D-006

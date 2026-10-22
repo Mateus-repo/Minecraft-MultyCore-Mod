@@ -6,6 +6,7 @@
   "description": "Runs the safe parts of the Minecraft server tick on multiple worker threads while keeping legacy mods on the main thread.",
   "authors": ["Strefiz"],
   "license": "MIT",
+  "icon": "assets/multicore/icon.png",
   "environment": "*",
   "entrypoints": {
     "main": [
