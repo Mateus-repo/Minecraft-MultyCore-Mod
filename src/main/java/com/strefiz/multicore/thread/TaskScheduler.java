@@ -36,6 +36,7 @@ public final class TaskScheduler {
 	public static final long DEFAULT_DRAIN_TIMEOUT_MS = 2_000L;
 
 	private final WorkerPool pool;
+	private final ThreadChecker threadChecker;
 	private final ConcurrentLinkedQueue<OffloadTask<?>> inFlight = new ConcurrentLinkedQueue<>();
 	private final AtomicLong sequence = new AtomicLong();
 
@@ -43,9 +44,11 @@ public final class TaskScheduler {
 	 * Creates a scheduler bound to a pool.
 	 *
 	 * @param pool the worker pool to run offloaded work on
+	 * @param threadChecker the debug thread-checker (may be disabled)
 	 */
-	public TaskScheduler(WorkerPool pool) {
+	public TaskScheduler(WorkerPool pool, ThreadChecker threadChecker) {
 		this.pool = Objects.requireNonNull(pool, "pool");
+		this.threadChecker = threadChecker;
 	}
 
 	/** @return whether there are tasks waiting for the main thread. */
@@ -122,7 +125,9 @@ public final class TaskScheduler {
 	 * @return the number of merges applied
 	 */
 	public int drainToMain(long timeoutMillis) {
-		if (!MainThread.isCurrent()) {
+		if (threadChecker.enabled()) {
+			threadChecker.assertMainThread("drainToMain");
+		} else if (!MainThread.isCurrent()) {
 			LOGGER.warn("drainToMain() was called off the main thread; merges may be unsafe.");
 		}
 		if (inFlight.isEmpty()) {

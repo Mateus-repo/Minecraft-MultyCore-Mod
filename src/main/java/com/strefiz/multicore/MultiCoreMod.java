@@ -18,6 +18,7 @@ import com.strefiz.multicore.thread.MainThread;
 import com.strefiz.multicore.thread.OffloadRegistry;
 import com.strefiz.multicore.thread.Safety;
 import com.strefiz.multicore.thread.TaskScheduler;
+import com.strefiz.multicore.thread.ThreadChecker;
 import com.strefiz.multicore.thread.WorkerPool;
 
 import net.fabricmc.api.ModInitializer;
@@ -68,6 +69,7 @@ public class MultiCoreMod implements ModInitializer, StatusSource, MultiCoreComp
 	private OffloadRegistry offloads;
 	private ModCompatibility compat;
 	private LegacyHandoff legacyHandoff;
+	private ThreadChecker threadChecker;
 
 	@Override
 	public void onInitialize() {
@@ -83,13 +85,14 @@ public class MultiCoreMod implements ModInitializer, StatusSource, MultiCoreComp
 		MainThread.capture();
 		config = ConfigStore.defaultStore().load();
 		pool = new WorkerPool("multicore-worker", config.workerThreads());
-		scheduler = new TaskScheduler(pool);
+		scheduler = new TaskScheduler(pool, threadChecker);
 		offloads = new OffloadRegistry(scheduler);
 		offloads.register("metrics-rollup", Safety.PURE,
 				() -> new MetricsRollup(metrics).hottest(5), rollup::set);
 		compat = ModCompatibility.scan();
 		legacyHandoff = LegacyHandoff.create();
 		MultiCoreCompat.setHandler(this);
+		threadChecker = ThreadChecker.debug(config.debug());
 		pool.start();
 
 		if (config.multithreaded()) {

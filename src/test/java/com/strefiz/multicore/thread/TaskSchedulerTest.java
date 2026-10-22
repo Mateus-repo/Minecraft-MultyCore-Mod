@@ -15,6 +15,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.jupiter.api.Test;
 
+import com.strefiz.multicore.thread.ThreadChecker;
+
 /**
  * Unit tests for {@link TaskScheduler}: offload, barrier, merge-on-main and failure handling.
  */
@@ -25,7 +27,7 @@ class TaskSchedulerTest {
 		MainThread.capture();
 		WorkerPool pool = new WorkerPool("test", 1);
 		pool.start();
-		TaskScheduler scheduler = new TaskScheduler(pool);
+		TaskScheduler scheduler = new TaskScheduler(pool, ThreadChecker.debug(false));
 		AtomicReference<Thread> workThread = new AtomicReference<>();
 		AtomicReference<Thread> mergeThread = new AtomicReference<>();
 
@@ -45,7 +47,7 @@ class TaskSchedulerTest {
 		MainThread.capture();
 		WorkerPool pool = new WorkerPool("test", 4);
 		pool.start();
-		TaskScheduler scheduler = new TaskScheduler(pool);
+		TaskScheduler scheduler = new TaskScheduler(pool, ThreadChecker.debug(false));
 		List<Integer> order = new ArrayList<>();
 		CountDownLatch allDone = new CountDownLatch(5);
 
@@ -70,7 +72,7 @@ class TaskSchedulerTest {
 		MainThread.capture();
 		WorkerPool pool = new WorkerPool("test", 1);
 		pool.start();
-		TaskScheduler scheduler = new TaskScheduler(pool);
+		TaskScheduler scheduler = new TaskScheduler(pool, ThreadChecker.debug(false));
 		AtomicBoolean merged = new AtomicBoolean(false);
 
 		scheduler.submitOffload(() -> {
@@ -88,7 +90,7 @@ class TaskSchedulerTest {
 		MainThread.capture();
 		WorkerPool pool = new WorkerPool("test", 4);
 		pool.start();
-		TaskScheduler scheduler = new TaskScheduler(pool);
+		TaskScheduler scheduler = new TaskScheduler(pool, ThreadChecker.debug(false));
 		AtomicInteger applied = new AtomicInteger();
 		CountDownLatch allDone = new CountDownLatch(100);
 
@@ -114,7 +116,7 @@ class TaskSchedulerTest {
 		MainThread.capture();
 		WorkerPool pool = new WorkerPool("test", 1);
 		pool.start();
-		TaskScheduler scheduler = new TaskScheduler(pool);
+		TaskScheduler scheduler = new TaskScheduler(pool, ThreadChecker.debug(false));
 		AtomicBoolean merged = new AtomicBoolean(false);
 
 		scheduler.submitOffload(() -> {
@@ -132,7 +134,7 @@ class TaskSchedulerTest {
 		MainThread.capture();
 		WorkerPool pool = new WorkerPool("test", 1);
 		pool.start();
-		TaskScheduler scheduler = new TaskScheduler(pool);
+		TaskScheduler scheduler = new TaskScheduler(pool, ThreadChecker.debug(false));
 		AtomicBoolean merged = new AtomicBoolean(false);
 
 		scheduler.submitOffload(() -> {
@@ -148,7 +150,7 @@ class TaskSchedulerTest {
 	@Test
 	void runsInlineWhenPoolIsDisabled() {
 		MainThread.capture();
-		TaskScheduler scheduler = new TaskScheduler(new WorkerPool("test", 0));
+		TaskScheduler scheduler = new TaskScheduler(new WorkerPool("test", 0), ThreadChecker.debug(false));
 		List<String> events = new ArrayList<>();
 
 		scheduler.submitOffload(() -> {
@@ -164,7 +166,7 @@ class TaskSchedulerTest {
 		MainThread.capture();
 		WorkerPool pool = new WorkerPool("test", 1);
 		pool.start();
-		TaskScheduler scheduler = new TaskScheduler(pool);
+		TaskScheduler scheduler = new TaskScheduler(pool, ThreadChecker.debug(false));
 		AtomicBoolean merged = new AtomicBoolean(false);
 		CountDownLatch recovered = new CountDownLatch(1);
 
@@ -183,7 +185,7 @@ class TaskSchedulerTest {
 	@Test
 	void drainIsIdempotent() {
 		MainThread.capture();
-		TaskScheduler scheduler = new TaskScheduler(new WorkerPool("test", 0));
+		TaskScheduler scheduler = new TaskScheduler(new WorkerPool("test", 0), ThreadChecker.debug(false));
 
 		assertEquals(0, scheduler.drainToMain());
 		assertFalse(scheduler.hasPending());

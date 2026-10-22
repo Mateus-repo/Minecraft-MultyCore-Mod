@@ -8,6 +8,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.jupiter.api.Test;
 
+import com.strefiz.multicore.thread.ThreadChecker;
+
 /**
  * Unit tests for {@link OffloadRegistry}: safety filtering and submission.
  */
@@ -18,7 +20,7 @@ class OffloadRegistryTest {
 		MainThread.capture();
 		WorkerPool pool = new WorkerPool("test", 1);
 		pool.start();
-		TaskScheduler scheduler = new TaskScheduler(pool);
+		TaskScheduler scheduler = new TaskScheduler(pool, ThreadChecker.debug(false));
 		OffloadRegistry registry = new OffloadRegistry(scheduler);
 		AtomicInteger pure = new AtomicInteger();
 		AtomicInteger readOnly = new AtomicInteger();
@@ -42,7 +44,7 @@ class OffloadRegistryTest {
 		MainThread.capture();
 		WorkerPool pool = new WorkerPool("test", 3);
 		pool.start();
-		TaskScheduler scheduler = new TaskScheduler(pool);
+		TaskScheduler scheduler = new TaskScheduler(pool, ThreadChecker.debug(false));
 		OffloadRegistry registry = new OffloadRegistry(scheduler);
 		AtomicInteger ran = new AtomicInteger();
 
@@ -58,7 +60,8 @@ class OffloadRegistryTest {
 
 	@Test
 	void exposesRegisteredNames() {
-		OffloadRegistry registry = new OffloadRegistry(new TaskScheduler(new WorkerPool("test", 0)));
+		OffloadRegistry registry = new OffloadRegistry(
+				new TaskScheduler(new WorkerPool("test", 0), ThreadChecker.debug(false)));
 		registry.register("a", Safety.PURE, () -> 1, v -> { });
 		registry.register("b", Safety.PURE, () -> 2, v -> { });
 
