@@ -26,11 +26,16 @@ public final class MultiCoreCommand {
 	 * @param source the runtime state to report
 	 */
 	public static void register(CommandDispatcher<CommandSourceStack> dispatcher, StatusSource source) {
+		LiteralArgumentBuilder<CommandSourceStack> compat = Commands.literal("compat")
+				.executes(context -> send(context.getSource(), StatusFormatter.compat(source.compatSummary())))
+				.then(Commands.literal("dump")
+						.executes(context -> send(context.getSource(),
+								StatusFormatter.compatDump(source.compatDump()))));
+
 		LiteralArgumentBuilder<CommandSourceStack> root = Commands.literal("multicore")
 				.then(Commands.literal("status")
 						.executes(context -> send(context.getSource(), StatusFormatter.status(source))))
-				.then(Commands.literal("compat")
-						.executes(context -> send(context.getSource(), StatusFormatter.compat(source.compatSummary()))))
+				.then(compat)
 				.then(Commands.literal("regions")
 						.executes(context -> send(context.getSource(), StatusFormatter.regions(source.regionSummary()))))
 				.then(Commands.literal("reload")

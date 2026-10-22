@@ -34,6 +34,11 @@ public interface StatusSource {
 		return "";
 	}
 
+	/** @return a detailed dump of the compatibility layer, or an empty string when not implemented. */
+	default String compatDump() {
+		return "";
+	}
+
 	/** @return a summary of the region scheduler, or an empty string when not implemented. */
 	default String regionSummary() {
 		return "";

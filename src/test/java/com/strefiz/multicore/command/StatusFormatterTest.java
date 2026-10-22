@@ -80,6 +80,20 @@ class StatusFormatterTest {
 	}
 
 	@Test
+	void compatDumpReturnsTheDump() {
+		String text = StatusFormatter.compatDump("mod-a: COMPATIBLE%nmod-b: LEGACY".replace("%n", "\n"));
+
+		assertTrue(text.contains("mod-a: COMPATIBLE"));
+		assertTrue(text.contains("mod-b: LEGACY"));
+	}
+
+	@Test
+	void compatDumpExplainsWhenNotImplemented() {
+		assertTrue(StatusFormatter.compatDump("").contains("Phase 2"));
+		assertTrue(StatusFormatter.compatDump(null).contains("Phase 2"));
+	}
+
+	@Test
 	void reloadWarningMentionsRestart() {
 		assertTrue(StatusFormatter.reloadWarning().contains("restart"));
 	}

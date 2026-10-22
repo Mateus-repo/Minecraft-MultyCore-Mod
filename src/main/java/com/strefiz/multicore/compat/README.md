@@ -1,37 +1,45 @@
 # compat
 
-> Mod compatibility: the Mod Menu config screen (Phase 1) and, later, the legacy/compatible mod
+> Mod compatibility: the Mod Menu config screen (Phase 1) and, now, the legacy/compatible mod
 > classification and hand-off (Phase 2).
 
 **Does not do:** decide whether a mod is thread-safe (Phase 2), or run offloaded work.
 
 ## Public API
 
-Entry point: `compat/ModMenuIntegration`.
+Entry point: `compat/ModCompatibility` and `compat/ModClassifier`.
 
 | Symbol | Signature | Description | Errors |
 |---------|------------|-----------|-------|
-| `ModMenuIntegration` | `implements ModMenuApi` · `getModConfigScreenFactory()` | Exposes the config screen to Mod Menu | — |
-| `MultiCoreConfigScreen` | `extends Screen` | Native config screen; persists on every change | never throws |
+| `ModClassifier.classify(metadata)` | `static ModClassification classify(ModMetadata)` | Pure: read `custom.multicore.threadSafe` | never throws |
+| `ModCompatibility.scan()` | `static ModCompatibility scan()` | Scan all loaded mods via Fabric Loader | never throws |
+| `ModCompatibility.isLegacy(id)` / `isCompatible(id)` | `boolean` | Classification honouring overrides | — |
+| `ModCompatibility.forceLegacy(id)` / `forceCompatible(id)` | `void` | Override a mod's own declaration | — |
+| `ModCompatibility.classifications()` | `Map<String, ModClassification>` | Read-only snapshot | — |
+| `ModClassification` | `LEGACY` \| `COMPATIBLE` | Safety level | — |
 
 ## Usage example
 
-The screen is opened by Mod Menu; a user never calls it directly.
+```java
+ModCompatibility compat = ModCompatibility.scan();
+if (compat.isCompatible("some-mod")) {
+    // may run on region threads in AGGRESSIVE mode
+}
+```
 
 ## Dependencies
 
-- **Allowed:** Mod Menu API (optional), Minecraft client GUI, the `config` module.
-- **Forbidden:** Minecraft server/world classes, the worker pool.
+- **Allowed:** Fabric Loader (`ModCompatibility.scan()` only).
+- **Forbidden:** Minecraft world classes, the worker pool.
 
 ## Notes and limitations
 
-- Mod Menu is **optional**: `compileOnly` + `localRuntime`, declared with `suggests`, never `depends`.
-- The mod ships as `environment: "*"` so Mod Menu can see it; the actual work is server-side via the
-  `server` entrypoint.
-- Every change is saved immediately, but **thread/mode/region settings require a restart** (D-008);
-  the screen says so.
-- On a dedicated server there is no client GUI — the file and `/multicore` are authoritative.
+- A mod is thread-safe only if it declares `custom.multicore.threadSafe: true` in its
+  `fabric.mod.json`. Everything else is legacy (opt-in, like Folia).
+- Whitelist/blacklist overrides are applied on top of the declaration.
+- The classification is a snapshot taken at `SERVER_STARTING`; it does not change at runtime.
 
 ## Tests
 
-No unit tests yet (the screen needs a client). Verified manually — see `docs/TESTING.md`.
+`./gradlew test --tests "com.strefiz.multicore.compat.*"` — tests on `ModClassifier` and
+`ModCompatibility` in `src/test/java/com/strefiz/multicore/compat/`.

@@ -5,6 +5,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import com.strefiz.multicore.command.MultiCoreCommand;
 import com.strefiz.multicore.command.StatusSource;
+import com.strefiz.multicore.compat.ModClassification;
+import com.strefiz.multicore.compat.ModCompatibility;
 import com.strefiz.multicore.config.ConfigMode;
 import com.strefiz.multicore.config.ConfigStore;
 import com.strefiz.multicore.config.MultiCoreConfig;
@@ -62,6 +64,7 @@ public class MultiCoreMod implements ModInitializer, StatusSource {
 	private WorkerPool pool;
 	private TaskScheduler scheduler;
 	private OffloadRegistry offloads;
+	private ModCompatibility compat;
 
 	@Override
 	public void onInitialize() {
@@ -81,6 +84,7 @@ public class MultiCoreMod implements ModInitializer, StatusSource {
 		offloads = new OffloadRegistry(scheduler);
 		offloads.register("metrics-rollup", Safety.PURE,
 				() -> new MetricsRollup(metrics).hottest(5), rollup::set);
+		compat = ModCompatibility.scan();
 		pool.start();
 
 		if (config.multithreaded()) {
@@ -141,5 +145,27 @@ public class MultiCoreMod implements ModInitializer, StatusSource {
 	@Override
 	public String metricsRollup() {
 		return rollup.get();
+	}
+
+	@Override
+	public String compatSummary() {
+		if (compat == null) {
+			return "";
+		}
+		return String.format("legacy=%d compatible=%d of %d",
+				compat.legacyCount(), compat.compatibleCount(), compat.size());
+	}
+
+	@Override
+	public String compatDump() {
+		if (compat == null) {
+			return "";
+		}
+		StringBuilder text = new StringBuilder();
+		text.append("MultiCore compatibility dump (").append(compat.size()).append(" mods):");
+		for (Map.Entry<String, ModClassification> entry : compat.classifications().entrySet()) {
+			text.append(String.format("%n  %s: %s", entry.getKey(), entry.getValue()));
+		}
+		return text.toString();
 	}
 }

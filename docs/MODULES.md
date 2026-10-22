@@ -11,8 +11,8 @@
 | `config` | `config/` | parse/validate/persist the JSON config | `ConfigStore.load()/save()`, `MultiCoreConfig.normalized()`, `ConfigMode` | — |
 | `thread` | `thread/` | own the worker threads and identify the main thread | `WorkerPool.start()/submit()/shutdown()`, `MainThread.isCurrent()`, `TaskScheduler.drainToMain()` | — |
 | `metrics` | `metrics/` | lock-free tick and per-thread timing | `TickMetrics.startTick()/endTick()/snapshot()/reset()` | — |
-| `command` | `command/` | `/multicore` status/compat/regions/reload | `MultiCoreCommand.register(...)`, `StatusFormatter` | `metrics` |
-| `compat` | `compat/` | Mod Menu config screen (Phase 1) + mod classification (Phase 2) | `ModMenuIntegration.getModConfigScreenFactory()`, `MultiCoreConfigScreen` | `config` |
+| `command` | `command/` | `/multicore` status/compat/regions/reload | `MultiCoreCommand.register(...)`, `StatusFormatter` | `metrics`, `compat` |
+| `compat` | `compat/` | Mod Menu config screen + mod classification | `ModCompatibility.scan()`, `ModClassifier.classify()`, `ModMenuIntegration`, `MultiCoreConfigScreen` | `config` |
 | _planned_ | `compat/ModCompatibility` | classify mods from `fabric.mod.json` | `classify(String)`, `isLegacy(String)` | `config` |
 | _planned_ | `compat/LegacyHandoff` | queue legacy callbacks for the main thread | `enqueue(Runnable)`, `drain()` | `config` |
 | _planned_ | `region/Regionizer` | Folia-style region maintenance | `addChunk`, `removeChunk`, `tryMarkTicking`, `markNotTicking` | `config` |
@@ -39,7 +39,10 @@ Group by **concept**, not by file. _(Empty until the first module is implemented
 | `TickMetrics` | `metrics/TickMetrics.java` | `startTick()` · `endTick()` · `beginWork/endWork` · `snapshot()` · `reset()` | Lock-free tick and per-thread timings | no | — | `command`, mixins |
 | `MultiCoreCommand` | `command/MultiCoreCommand.java` | `register(CommandDispatcher, StatusSource)` · `registerEvents(StatusSource)` | `/multicore` command tree | no | — | `MultiCoreMod` |
 | `StatusFormatter` | `command/StatusFormatter.java` | `status(StatusSource)` · `compat(String)` · `regions(String)` · `reloadWarning()` | Pure command text formatting | yes | — | `MultiCoreCommand` |
-| `StatusSource` | `command/StatusSource.java` | `mode()` · `workerThreads()` · `metrics()` · `metricsRollup()` · … | Read-only state for the command | yes | — | `MultiCoreCommand` |
+| `StatusSource` | `command/StatusSource.java` | `mode()` · `workerThreads()` · `metrics()` · `metricsRollup()` · `compatSummary()` · `compatDump()` | Read-only state for the command | yes | — | `MultiCoreCommand` |
+| `ModClassifier` | `compat/ModClassifier.java` | `static classify(ModMetadata)` | Pure: read `custom.multicore.threadSafe` | yes | — | `ModCompatibility` |
+| `ModCompatibility` | `compat/ModCompatibility.java` | `scan()` · `isLegacy(id)` · `isCompatible(id)` · `forceLegacy(id)` · `forceCompatible(id)` · `classifications()` | Scan mods + whitelist/blacklist overrides | no | never throws | `MultiCoreMod`, `command` |
+| `ModClassification` | `compat/ModClassification.java` | `LEGACY` \| `COMPATIBLE` | Safety level | yes | — | `compat` |
 | `ModMenuIntegration` | `compat/ModMenuIntegration.java` | `implements ModMenuApi` · `getModConfigScreenFactory()` | Expose the config screen to Mod Menu | no | — | Mod Menu |
 | `MultiCoreConfigScreen` | `compat/MultiCoreConfigScreen.java` | `extends Screen` | Native config screen; persists on change; restart warning | no | never throws | Mod Menu |
 

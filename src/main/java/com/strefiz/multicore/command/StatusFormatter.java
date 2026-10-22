@@ -64,6 +64,19 @@ public final class StatusFormatter {
 	}
 
 	/**
+	 * Formats the {@code /multicore compat dump} output.
+	 *
+	 * @param dump the compatibility dump (empty when Phase 2 is not implemented)
+	 * @return the text to show
+	 */
+	public static String compatDump(String dump) {
+		if (dump == null || dump.isBlank()) {
+			return "MultiCore: compatibility layer not active yet (Phase 2).";
+		}
+		return dump;
+	}
+
+	/**
 	 * Formats the {@code /multicore regions} output.
 	 *
 	 * @param summary the region summary (empty when Phase 3 is not implemented)
