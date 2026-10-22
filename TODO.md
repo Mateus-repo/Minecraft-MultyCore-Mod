@@ -7,11 +7,10 @@
 
 ## Now
 
-_Empty — M1 code is done; next is Phase 2 (mod compatibility)._
+_Empty — Phase 2.1 done; next is T-011 (legacy hand-off)._
 
 ## Next
 
-- [ ] T-010 [P2] [M] Phase 2.1 — mod scan — acceptance: list loaded mods, read `custom.multicore.threadSafe`, classify legacy/compatible, honour whitelist/blacklist  (ref: ROADMAP M2, D-005)
 - [ ] T-011 [P2] [M] Phase 2.2 — legacy hand-off — acceptance: legacy Fabric callbacks run on the main thread in SAFE mode; a "naughty" legacy mod test does not corrupt state  (ref: ROADMAP M2)
 - [ ] T-012 [P2] [M] Phase 2.3 — `MultiCoreCompat` public API — acceptance: `runOnRegion`/`runOnMain`/`RegionLocal` documented, tested, listed in `docs/MODULES.md`  (ref: ROADMAP M2)
 - [ ] T-013 [P2] [S] Phase 2.4 — instrumentation — acceptance: debug thread-check logs off-thread world access; `/multicore compat dump` reports it  (ref: ROADMAP M2)
@@ -45,4 +44,4 @@ _Empty — M1 code is done; next is Phase 2 (mod compatibility)._
 - [x] T-007 [P1] [M] Phase 1.5 — Mod Menu config screen — acceptance: integration + screen + lang files, persists, restart warning, optional dependency  (ref: ROADMAP M1, D-007)
 - [x] T-008 [P1] [M] Wire the entrypoint — acceptance: config/pool/scheduler/metrics/command wired; lifecycle events; build green  (ref: ROADMAP M1)
 - [x] T-009 [P1] [S] First safe offload + benchmark — acceptance: `OffloadRegistry` with a `Safety` contract, `MetricsRollup` offload, `docs/BENCHMARKS.md`  (ref: ROADMAP M1)
-- [x] T-009b [P1] [M] Fix the external review findings — acceptance: `main`/`ModInitializer` entrypoint, scheduler barrier + submission-order merges, `execute` instead of `submit`, docs updated  (ref: REVIEW.md)
+- [x] T-010 [P2] [M] Phase 2.1 — mod scan — acceptance: `ModCompatibility.scan()`, `ModClassifier.classify()` reads `custom.multicore.threadSafe`, whitelist/blacklist overrides, `/multicore compat` + `dump`  (ref: ROADMAP M2, D-005)

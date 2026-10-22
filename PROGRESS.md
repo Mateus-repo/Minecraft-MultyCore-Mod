@@ -25,6 +25,12 @@
 - **Next step:** …
 -->
 
+### 2026-10-22 — Phase 2.1: mod scan + classification + /multicore compat dump
+- **Done:** T-010 — `ModClassification`, `ModClassifier` (pure, reads `custom.multicore.threadSafe`), `ModCompatibility.scan()` via Fabric Loader with whitelist/blacklist overrides; wired into `MultiCoreMod` (StatusSource.compatSummary/compatDump); `/multicore compat` and `/multicore compat dump`; unit tests for classifier + compatibility; build/tests/check green.
+- **Decisions:** none new.
+- **State on exit:** build ✅ · tests ✅ · branch `main` · last commit `feat(compat): add mod scan + legacy/compatible classification, /multicore compat dump`.
+- **Next step:** T-011 — legacy hand-off (Phase 2.2).
+
 ### 2026-10-22 — M1: second review fixes (deadline + deadline policy + icon + FabricMC refs)
 - **Done:** fixed `TaskScheduler.awaitAll` — it now waits against **one shared deadline** instead of dividing the timeout per task (a slow task was starving the others and dropping results in silence). Added `DeadlinePolicy` (`SKIP`/`WAIT`) derived from `Safety`: world-modifying work is never dropped, metrics work may skip. Moved `icon.png` to `src/main/resources/assets/multicore/icon.png`, added `"icon"` to `fabric.mod.json`, removed `logo.txt` (chat transcript). Recorded FabricMC GitHub references in `ARCHITECTURE.md` (external refs section).
 - **External review (Claude, 2nd pass):** confirmed B1–B5 fixes and the honest feasibility notes; found the new deadline bug (above) and reminded to record FabricMC org links if we ever build our own modified Fabric server jar.

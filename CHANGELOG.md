@@ -11,6 +11,7 @@ Write for **humans**: what changed for people who use it, not internal details.
 - Mod Menu integration requirement (optional dependency, restart warning) — D-007.
 - M1 infrastructure: JSON config, named worker pool, offload/merge scheduler, lock-free metrics,
   `/multicore` command, Mod Menu config screen, offload registry with a safety contract.
+- Phase 2.1: mod compatibility scan + classification (`compat.multicore.threadSafe` opt-in, Folia-style), whitelist/blacklist overrides, `/multicore compat` and `/multicore compat dump`.
 - `docs/BENCHMARKS.md` — the measurement plan and the go/no-go point before Phase 3 (D-012).
 - `REVIEW.md` — an independent review of the M1 code and of an external review (R-001).
 
