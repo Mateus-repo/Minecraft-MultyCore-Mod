@@ -15,6 +15,7 @@ Write for **humans**: what changed for people who use it, not internal details.
 - Phase 2.2: legacy handoff (`LegacyHandoff` queue drained on main thread) + `MultiCoreCompat` public API (`runOnMain`/`isThreadSafe`).
 - Phase 2.4: debug thread-checker (`ThreadChecker`) wired into the scheduler, gated by the `debug` config flag.
 - Phase 3.1: region model (`Region`, `RegionState`, `RegionSection`); Folia-style four-state region ownership; unit-tested.
+- Phase 3.2: region scheduler (`RegionScheduler`); parallel region ticks on the worker pool + main-thread barrier.
 - `docs/BENCHMARKS.md` — the measurement plan and the go/no-go point before Phase 3 (D-012).
 - `REVIEW.md` — an independent review of the M1 code and of an external review (R-001).
 

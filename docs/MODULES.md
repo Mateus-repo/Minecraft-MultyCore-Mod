@@ -47,9 +47,10 @@ Group by **concept**, not by file. _(Empty until the first module is implemented
 | `ModClassification` | `compat/ModClassification.java` | `LEGACY` \| `COMPATIBLE` | Safety level | yes | — | `compat` |
 | `LegacyHandoff` | `compat/LegacyHandoff.java` | `create()` · `enqueue(Runnable)` · `drainToMain()` | Queue legacy callbacks for the main thread | no | never throws | `MultiCoreMod` |
 | `MultiCoreCompat` | `compat/MultiCoreCompat.java` | `runOnMain(Runnable)` · `isThreadSafe()` · `setHandler(Handler)` | Public API for mod authors | yes | — | `MultiCoreMod` |
-| `Region` | `region/Region.java` | `addSection(section)` · `removeSection(section)` · `tryMarkTicking()` · `markNotTicking()` · `putRegionLocal/getRegionLocal` | Region lifecycle + section ownership | no | `IllegalStateException` if ticking | `RegionScheduler`, mixins |
+| `Region` | `region/Region.java` | `addSection(section)` · `removeSection(section)` · `tryMarkTicking()` · `markTickingOwner(thread)` · `markNotTicking()` · `putRegionLocal/getRegionLocal` | Region lifecycle + section ownership | no | `IllegalStateException` if ticking | `RegionScheduler`, mixins |
 | `RegionState` | `region/RegionState.java` | `TRANSIENT` \| `READY` \| `TICKING` \| `DEAD` | Region lifecycle state | yes | — | `Region`, `Regionizer` |
 | `RegionSection` | `region/RegionSection.java` | `RegionSection(x,z)` · `static fromChunk(chunkX, chunkZ, chunkShift)` | Section coordinate (N×N chunk grid) | yes | — | `Region`, `Regionizer` |
+| `RegionScheduler` | `region/RegionScheduler.java` | `RegionScheduler(WorkerPool, TaskScheduler, ThreadChecker)` · `tickRegions(collection)` · `awaitBarrier()` | Schedule regions to tick in parallel, join on main thread | no | never throws | `MultiCoreMod`, mixins |
 | `ModMenuIntegration` | `compat/ModMenuIntegration.java` | `implements ModMenuApi` · `getModConfigScreenFactory()` | Expose the config screen to Mod Menu | no | — | Mod Menu |
 
 ## Known duplications (to resolve)

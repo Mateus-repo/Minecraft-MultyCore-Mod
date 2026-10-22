@@ -25,6 +25,12 @@
 - **Next step:** …
 -->
 
+### 2026-10-22 — Phase 3.2: region scheduler + barrier
+- **Done:** T-015 — `RegionScheduler` schedules READY regions to tick in parallel on the worker pool, `awaitBarrier()` joins on the main thread and marks regions not-ticking. Unit-tested.  (ref: ROADMAP M3)
+- **Decisions:** none new.
+- **State on exit:** build ✅ · tests ✅ · branch `main` · last commit `feat(region): add region scheduler with parallel tick + barrier`.
+- **Next step:** T-023 benchmark go/no-go, or T-016 cross-region messages.
+
 ### 2026-10-22 — Phase 3.1: region model (Folia-style)
 - **Done:** T-014 — `Region` (four states, section ownership, region-local data), `RegionState`, `RegionSection` (N×N chunk grid). All pure, unit-tested without Minecraft.  (ref: ROADMAP M3)
 - **Decisions:** none new.
