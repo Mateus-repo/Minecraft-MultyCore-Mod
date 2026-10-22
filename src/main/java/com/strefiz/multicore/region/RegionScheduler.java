@@ -89,7 +89,8 @@ public final class RegionScheduler {
 	}
 
 	/**
-	 * Waits for every submitted region to finish, then marks them not-ticking on the main thread.
+	 * Waits for every submitted region to finish, delivers pending cross-region messages, then marks
+	 * them not-ticking on the main thread.
 	 *
 	 * <p>Must be called on the main thread (typically at {@code END_SERVER_TICK}).
 	 *
@@ -103,10 +104,14 @@ public final class RegionScheduler {
 			return 0;
 		}
 		int finished = scheduler.drainToMain();
+		int delivered = 0;
 		for (Region region : tickingRegions.values()) {
+			delivered += region.messageQueue().drain();
 			region.markNotTicking();
 		}
 		tickingRegions.clear();
+		LOGGER.debug("Barrier: {} regions finished, {} cross-region messages delivered.", finished,
+				delivered);
 		return finished;
 	}
 }

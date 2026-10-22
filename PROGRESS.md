@@ -5,12 +5,12 @@
 
 ## Current state
 
-- **Current milestone:** M1 — Infrastructure + safe offload (in progress)
-- **Last update:** 2026-10-21
+- **Current milestone:** M1 — Infrastructure + safe offload (Phase 3 partially done)
+- **Last update:** 2026-10-22
 - **Build/test health:** ✅ `./gradlew build` green · ✅ `scripts/check.sh` green (10 checks) · ✅ JUnit green
-- **In progress:** T-009 done (offload registry + first safe offload + benchmark plan); starting Phase 2 (mod compatibility)
-- **Recommended next step:** T-010 — scan loaded mods and classify them as legacy/compatible
-- **Blockers / open questions:** Q-001 (Phase 3 approach) and Q-002 (Mod Menu restart flow) are open in `QUESTIONS.md`; they do not block M1/M2.
+- **In progress:** T-012 (RegionLocal/runOnRegion) pending; T-023 benchmark go/no-go next
+- **Recommended next step:** T-023 — run the M1 benchmark and write the go/no-go report
+- **Blockers / open questions:** Q-001 (Phase 3 approach) and Q-002 (Mod Menu restart flow) are open in `QUESTIONS.md`; they do not block M1/M2/3.
 - **Risks / relevant technical debt:** Phase 3 (regionised tick) can corrupt worlds if rushed — SAFE default, debug instrumentation, determinism tests first (see `docs/RESEARCH.md` §8). SAFE mode protects Fabric-event mods but **not** mixin-based mods (documented). No CPU affinity yet (M4). `DeadlinePolicy` added so world-modifying work is never silently dropped on timeout (see `REVIEW.md` R-002).
 
 ## Session log
@@ -24,6 +24,12 @@
 - **State on exit:** build ✅/❌ · tests ✅/❌ · branch · last commit
 - **Next step:** …
 -->
+
+### 2026-10-22 — Phase 3.3: cross-region messages + fallback
+- **Done:** T-016 — `RegionMessage` (cross-region message payload), `RegionMessageQueue` (per-region queue), `Region.messageQueue()` accessor, `Region.isProblematic()`/`markProblematic()`/`clearProblematic()` fallback flag, `RegionScheduler.awaitBarrier()` drains message queues on the main thread. Unit-tested.  (ref: ROADMAP M3)
+- **Decisions:** none new.
+- **State on exit:** build ✅ · tests ✅ · branch `main` · last commit `feat(region): add region scheduler with parallel tick + barrier`.
+- **Next step:** T-023 — run the M1 benchmark and write the go/no-go report.
 
 ### 2026-10-22 — Phase 3.2: region scheduler + barrier
 - **Done:** T-015 — `RegionScheduler` schedules READY regions to tick in parallel on the worker pool, `awaitBarrier()` joins on the main thread and marks regions not-ticking. Unit-tested.  (ref: ROADMAP M3)

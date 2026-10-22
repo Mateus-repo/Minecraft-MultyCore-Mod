@@ -7,13 +7,11 @@
 
 ## Now
 
-_Empty — Phase 3.1 region model done; next is T-015 (region scheduler) which depends on Phase 3 regions being tickable._
+_Empty — Phase 3.2 region scheduler done; next is T-023 benchmark go/no-go._
 
 ## Next
 
 - [ ] T-012 [P2] [M] Phase 2.3 — `RegionLocal` / `runOnRegion` — acceptance: region-local storage + cross-region run helper documented, tested, listed in `docs/MODULES.md` (depends on Phase 3 regions)  (ref: ROADMAP M2)
-- [ ] T-015 [P2] [L] Phase 3.2 — region scheduler + barrier — acceptance: per-level regions tick in parallel on workers, main thread joins, legacy callbacks run after  (ref: ROADMAP M3)
-- [ ] T-016 [P2] [L] Phase 3.3 — cross-region messages + fallback — acceptance: teleports/redstone/explosions across boundaries use queues; problematic regions merge back to main thread  (ref: ROADMAP M3)
 - [ ] T-017 [P2] [M] Phase 3.4 — determinism/corruption tests — acceptance: same seed + same tick count produces identical world state vs vanilla in SAFE mode  (ref: ROADMAP M3)
 - [ ] T-023 [P2] [M] Run the M1 benchmark and write the go/no-go report — acceptance: fill the table in `docs/BENCHMARKS.md` for players-together and players-spread scenarios (with/without the mod), include a Spark profile, and state go/no-go for Phase 3  (ref: D-012)
 
@@ -44,3 +42,5 @@ _Empty — Phase 3.1 region model done; next is T-015 (region scheduler) which d
 - [x] T-010 [P2] [M] Phase 2.1 — mod scan — acceptance: `ModCompatibility.scan()`, `ModClassifier.classify()` reads `custom.multicore.threadSafe`, whitelist/blacklist overrides, `/multicore compat` + `dump`  (ref: ROADMAP M2, D-005)
 - [x] T-011 [P2] [M] Phase 2.2 — legacy hand-off — acceptance: `LegacyHandoff` queue + drain on main thread, `MultiCoreCompat.runOnMain`/`isThreadSafe` public API, exceptions don't propagate  (ref: ROADMAP M2)
 - [x] T-014 [P2] [L] Phase 3.1 — region model — acceptance: `Region`, `RegionState`, `RegionSection`; four states; add/remove section guarded by ticking; unit-tested in isolation  (ref: ROADMAP M3)
+- [x] T-015 [P2] [L] Phase 3.2 — region scheduler + barrier — acceptance: per-level regions tick in parallel on workers, main thread joins, legacy callbacks run after  (ref: ROADMAP M3)
+- [x] T-016 [P2] [L] Phase 3.3 — cross-region messages + fallback — acceptance: `RegionMessage`/`RegionMessageQueue`, drain on barrier, problematic flag on Region  (ref: ROADMAP M3)

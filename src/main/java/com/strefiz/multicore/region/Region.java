@@ -25,6 +25,8 @@ public final class Region {
 	private final long id;
 	private final Set<RegionSection> sections = new HashSet<>();
 	private final Map<Object, Object> regionLocalData = new IdentityHashMap<>();
+	private final RegionMessageQueue messageQueue = RegionMessageQueue.create();
+	private volatile boolean problematic = false;
 
 	private volatile RegionState state = RegionState.READY;
 	private volatile Thread ownerThread;
@@ -191,5 +193,30 @@ public final class Region {
 	public String toString() {
 		return "Region(id=" + id + ", state=" + state + ", sections=" + sections.size() + ", owner=" +
 				(ownerThread == null ? "none" : ownerThread.getName()) + ")";
+	}
+
+	/** @return this region's cross-region message queue. */
+	public RegionMessageQueue messageQueue() {
+		return messageQueue;
+	}
+
+	/** @return whether this region is flagged as problematic and should fall back to the main thread. */
+	public boolean isProblematic() {
+		return problematic;
+	}
+
+	/**
+	 * Marks this region as problematic, meaning it had cross-region interactions that could not be
+	 * resolved safely and should be ticked on the main thread from now on.
+	 */
+	public void markProblematic() {
+		this.problematic = true;
+	}
+
+	/**
+	 * Clears the problematic flag, allowing the region to return to worker-thread ticking.
+	 */
+	public void clearProblematic() {
+		this.problematic = false;
 	}
 }

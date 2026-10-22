@@ -13,11 +13,11 @@
 | `metrics` | `metrics/` | lock-free tick and per-thread timing | `TickMetrics.startTick()/endTick()/snapshot()/reset()` | — |
 | `command` | `command/` | `/multicore` status/compat/regions/reload | `MultiCoreCommand.register(...)`, `StatusFormatter` | `metrics`, `compat` |
 | `compat` | `compat/` | Mod Menu config screen + mod classification | `ModCompatibility.scan()`, `ModClassifier.classify()`, `ModMenuIntegration`, `MultiCoreConfigScreen` | `config` |
-| `region` | `region/` | Folia-style region model (Phase 3) | `Region`, `RegionState`, `RegionSection` | — |
+| `region` | `region/` | Folia-style region model (Phase 3) | `Region`, `RegionState`, `RegionSection`, `RegionScheduler`, `RegionMessage`, `RegionMessageQueue` | thread |
 | _planned_ | `compat/ModCompatibility` | classify mods from `fabric.mod.json` | `classify(String)`, `isLegacy(String)` | `config` |
 | _planned_ | `compat/LegacyHandoff` | queue legacy callbacks for the main thread | `enqueue(Runnable)`, `drain()` | `config` |
 | _planned_ | `region/Regionizer` | Folia-style region maintenance | `addChunk`, `removeChunk`, `tryMarkTicking`, `markNotTicking` | `config` |
-| _planned_ | `region/RegionScheduler` | run regions in parallel and join | `tickRegions(...)`, `awaitBarrier()` | `thread`, `compat` |
+| `region/RegionScheduler` | run regions in parallel and join | `tickRegions(...)`, `awaitBarrier()` | `thread`, `compat` |
 
 > Replace `_planned_` rows with real rows (and real signatures) as the code lands. Do not keep a row
 > that no longer exists.
@@ -50,7 +50,8 @@ Group by **concept**, not by file. _(Empty until the first module is implemented
 | `Region` | `region/Region.java` | `addSection(section)` · `removeSection(section)` · `tryMarkTicking()` · `markTickingOwner(thread)` · `markNotTicking()` · `putRegionLocal/getRegionLocal` | Region lifecycle + section ownership | no | `IllegalStateException` if ticking | `RegionScheduler`, mixins |
 | `RegionState` | `region/RegionState.java` | `TRANSIENT` \| `READY` \| `TICKING` \| `DEAD` | Region lifecycle state | yes | — | `Region`, `Regionizer` |
 | `RegionSection` | `region/RegionSection.java` | `RegionSection(x,z)` · `static fromChunk(chunkX, chunkZ, chunkShift)` | Section coordinate (N×N chunk grid) | yes | — | `Region`, `Regionizer` |
-| `RegionScheduler` | `region/RegionScheduler.java` | `RegionScheduler(WorkerPool, TaskScheduler, ThreadChecker)` · `tickRegions(collection)` · `awaitBarrier()` | Schedule regions to tick in parallel, join on main thread | no | never throws | `MultiCoreMod`, mixins |
+| `RegionMessage` | `region/RegionMessage.java` | `RegionMessage(source, target, payload, onDeliver)` | Cross-region message payload | yes | — | `RegionMessageQueue` |
+| `RegionMessageQueue` | `region/RegionMessageQueue.java` | `create()` · `enqueue(message)` · `drain()` | Per-region message queue | no | never throws | `Region`, `RegionScheduler` |
 | `ModMenuIntegration` | `compat/ModMenuIntegration.java` | `implements ModMenuApi` · `getModConfigScreenFactory()` | Expose the config screen to Mod Menu | no | — | Mod Menu |
 
 ## Known duplications (to resolve)
