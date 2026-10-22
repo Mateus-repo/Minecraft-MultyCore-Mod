@@ -11,7 +11,7 @@
 - **In progress:** T-009 done (offload registry + first safe offload + benchmark plan); starting Phase 2 (mod compatibility)
 - **Recommended next step:** T-010 — scan loaded mods and classify them as legacy/compatible
 - **Blockers / open questions:** Q-001 (Phase 3 approach) and Q-002 (Mod Menu restart flow) are open in `QUESTIONS.md`; they do not block M1/M2.
-- **Risks / relevant technical debt:** Phase 3 (regionised tick) can corrupt worlds if rushed — SAFE default, debug instrumentation, determinism tests first (see `docs/RESEARCH.md` §8). SAFE mode protects Fabric-event mods but **not** mixin-based mods (documented). No CPU affinity yet (M4).
+- **Risks / relevant technical debt:** Phase 3 (regionised tick) can corrupt worlds if rushed — SAFE default, debug instrumentation, determinism tests first (see `docs/RESEARCH.md` §8). SAFE mode protects Fabric-event mods but **not** mixin-based mods (documented). No CPU affinity yet (M4). `DeadlinePolicy` added so world-modifying work is never silently dropped on timeout (see `REVIEW.md` R-002).
 
 ## Session log
 
@@ -24,6 +24,13 @@
 - **State on exit:** build ✅/❌ · tests ✅/❌ · branch · last commit
 - **Next step:** …
 -->
+
+### 2026-10-22 — M1: second review fixes (deadline + deadline policy + icon + FabricMC refs)
+- **Done:** fixed `TaskScheduler.awaitAll` — it now waits against **one shared deadline** instead of dividing the timeout per task (a slow task was starving the others and dropping results in silence). Added `DeadlinePolicy` (`SKIP`/`WAIT`) derived from `Safety`: world-modifying work is never dropped, metrics work may skip. Moved `icon.png` to `src/main/resources/assets/multicore/icon.png`, added `"icon"` to `fabric.mod.json`, removed `logo.txt` (chat transcript). Recorded FabricMC GitHub references in `ARCHITECTURE.md` (external refs section).
+- **External review (Claude, 2nd pass):** confirmed B1–B5 fixes and the honest feasibility notes; found the new deadline bug (above) and reminded to record FabricMC org links if we ever build our own modified Fabric server jar.
+- **Decisions:** none new this pass (D-012, D-013 stand).
+- **State on exit:** build ✅ · tests ✅ · branch `main` · last commit `fix(thread): single deadline for awaitAll + deadline policy per safety`.
+- **Next step:** T-010 — mod compatibility scan (Phase 2).
 
 ### 2026-10-21 — M1: infrastructure + offload + Mod Menu + external review fixes
 - **Done:** T-003 config · T-004 worker pool · T-005 scheduler · T-006 metrics + `/multicore` · T-007 Mod Menu screen · T-008 wired the entrypoint · T-009 offload registry + first safe offload + `docs/BENCHMARKS.md`.
