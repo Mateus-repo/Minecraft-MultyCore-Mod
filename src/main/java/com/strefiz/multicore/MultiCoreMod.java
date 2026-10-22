@@ -5,8 +5,10 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import com.strefiz.multicore.command.MultiCoreCommand;
 import com.strefiz.multicore.command.StatusSource;
+import com.strefiz.multicore.compat.LegacyHandoff;
 import com.strefiz.multicore.compat.ModClassification;
 import com.strefiz.multicore.compat.ModCompatibility;
+import com.strefiz.multicore.compat.MultiCoreCompat;
 import com.strefiz.multicore.config.ConfigMode;
 import com.strefiz.multicore.config.ConfigStore;
 import com.strefiz.multicore.config.MultiCoreConfig;
@@ -49,7 +51,7 @@ import org.slf4j.LoggerFactory;
  *
  * <p>It also implements {@link StatusSource} so the command reads the live state from one place.
  */
-public class MultiCoreMod implements ModInitializer, StatusSource {
+public class MultiCoreMod implements ModInitializer, StatusSource, MultiCoreCompat.Handler {
 
 	/** Mod id, used for logging and config lookup. */
 	public static final String MOD_ID = "multicore";
@@ -65,6 +67,7 @@ public class MultiCoreMod implements ModInitializer, StatusSource {
 	private TaskScheduler scheduler;
 	private OffloadRegistry offloads;
 	private ModCompatibility compat;
+	private LegacyHandoff legacyHandoff;
 
 	@Override
 	public void onInitialize() {
@@ -85,6 +88,8 @@ public class MultiCoreMod implements ModInitializer, StatusSource {
 		offloads.register("metrics-rollup", Safety.PURE,
 				() -> new MetricsRollup(metrics).hottest(5), rollup::set);
 		compat = ModCompatibility.scan();
+		legacyHandoff = LegacyHandoff.create();
+		MultiCoreCompat.setHandler(this);
 		pool.start();
 
 		if (config.multithreaded()) {
@@ -107,6 +112,9 @@ public class MultiCoreMod implements ModInitializer, StatusSource {
 	private void onEndTick(MinecraftServer server) {
 		if (scheduler != null) {
 			scheduler.drainToMain();
+		}
+		if (legacyHandoff != null) {
+			legacyHandoff.drainToMain();
 		}
 		metrics.endTick();
 	}
@@ -167,5 +175,21 @@ public class MultiCoreMod implements ModInitializer, StatusSource {
 			text.append(String.format("%n  %s: %s", entry.getKey(), entry.getValue()));
 		}
 		return text.toString();
+	}
+
+	// --- MultiCoreCompat.Handler implementation ---
+
+	@Override
+	public void runOnMain(Runnable callback) {
+		if (legacyHandoff != null) {
+			legacyHandoff.enqueue(callback);
+		} else {
+			callback.run();
+		}
+	}
+
+	@Override
+	public boolean isThreadSafe() {
+		return config != null && config.mode() == ConfigMode.AGGRESSIVE;
 	}
 }
